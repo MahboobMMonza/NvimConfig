@@ -22,3 +22,11 @@ autocmd({"BufWritePre"}, {
   pattern = "*",
   command = [[%s/\s\+$//e]],
 })
+
+local leaveGroup = augroup("leaveGroup", { clear = true })
+autocmd("VimLeave", {
+  command = "set gcr=a:ver25-blinkwait400-blinkon1200-blinkoff1200",
+group = leaveGroup,
+})
+
+-- autocmd VimLeave * call system('printf "\e[5 q" > $TTY')

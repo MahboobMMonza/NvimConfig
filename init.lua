@@ -285,13 +285,19 @@ mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
 }
 
+-- local java_config = require('ftplugin.java').config
+
 mason_lspconfig.setup_handlers {
   function(server_name)
-    require('lspconfig')[server_name].setup {
+    local config = {
       capabilities = capabilities,
       on_attach = on_attach,
       settings = servers[server_name],
     }
+    -- if server_name == 'jdtls' then
+    --   config = java_config
+    -- end
+    require('lspconfig')[server_name].setup(config)
   end,
 }
 
