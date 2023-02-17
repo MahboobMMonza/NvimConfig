@@ -308,7 +308,7 @@ require('fidget').setup()
 local cmp = require('cmp')
 local luasnip = require('luasnip')
 
-cmp.setup {
+cmp.setup({
   snippet = {
     expand = function(args)
       luasnip.lsp_expand(args.body)
@@ -348,7 +348,7 @@ cmp.setup {
     { name = 'buffer' },
     { name = 'path' },
   },
-}
+})
 
 
 require('nvim-web-devicons').setup({
