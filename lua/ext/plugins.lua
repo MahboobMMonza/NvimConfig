@@ -1,11 +1,10 @@
 -- Additional plugins
 return function(use)
-
 	-- which-key
 	use({
 		'folke/which-key.nvim',
 		config = function()
-			require('which-key').setup{}
+			require('which-key').setup {}
 		end
 	})
 
@@ -16,12 +15,11 @@ return function(use)
 	})
 
 	-- Nvim-Tree
-use {
+	use({
 		'nvim-tree/nvim-tree.lua',
 		requires = {
 			'nvim-tree/nvim-web-devicons',
 		},
 		tag = 'nightly',
-	}
-
+	})
 end
