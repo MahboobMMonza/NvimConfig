@@ -1,13 +1,6 @@
 local v = vim
 local remap = function(modes, motion, operation, opts)
-  if type(modes) == "string" then
-    modes = { modes }
-  end
-  if opts == nil then
-    v.keymap.set(modes, motion, operation)
-  else
-    v.keymap.set(modes, motion, operation, opts)
-  end
+  v.keymap.set(modes, motion, operation, opts)
 end
 
 v.g.mapleader = ' '
@@ -18,7 +11,8 @@ remap('n', '<leader>zz', v.cmd.w)
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
-remap({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+remap({ 'n', 'v', 'x', 'i' }, '<C-z>', '<Nop>', { silent = true })
+remap({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true, noremap = true })
 remap({ 'n', 'v' }, 'Y', 'yg$') -- Remap Y to do yg$ instead of synonym for yy
 
 -- Remap for dealing with word wrap

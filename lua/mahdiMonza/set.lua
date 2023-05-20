@@ -3,15 +3,16 @@
 local v = vim
 
 -- Set number and relative number
-v.g.loaded_netrw = 1
-v.g.loaded_netrwPlugin = 1
 v.o.nu = true
 v.o.rnu = true
+-- Disable netrw
+v.g.loaded_netrw = 1
+v.g.loaded_netrwPlugin = 1
 
 -- Show matching brackets/braces
 v.o.showmatch = true
 
--- Tabwidths set to 4
+-- Tabwidths set to 4 while maintaining classical tabwidths
 v.o.ts = 8
 v.o.sw = 4
 v.o.sts = 4

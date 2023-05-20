@@ -1,6 +1,6 @@
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
-require('nvim-treesitter.configs').setup {
+require('nvim-treesitter.configs').setup({
   -- Add languages to be installed here that you want installed for treesitter
   ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'help', 'java', 'markdown' },
 
@@ -59,11 +59,11 @@ require('nvim-treesitter.configs').setup {
       },
     },
   },
-}
+})
 
 -- Diagnostic keymaps
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, {desc = 'Previous [D]iagnostic Issue'})
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, {desc = 'Next [D]iagnostic Issue'})
+vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, {desc = 'Open Diagnostic Message in Floating Window'})
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 

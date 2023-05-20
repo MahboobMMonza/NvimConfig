@@ -21,15 +21,12 @@ local remap = function(modes, motion, operation, opts)
   if type(modes) == "string" then
     modes = { modes }
   end
-  if opts == nil then
-    v.keymap.set(modes, motion, operation)
-  else
-    v.keymap.set(modes, motion, operation, opts)
-  end
+  v.keymap.set(modes, motion, operation, opts)
 end
 
 -- Keymap to open nvim-tree easily
 remap('n', '<leader>pv<CR>', ':NvimTreeFocus<CR>')
-remap('n', '<leader>pvt', ':NvimTreeToggle')
+remap('n', '<leader>pvt', ':NvimTreeToggle<CR>')
+remap('n', '<leader>pvf', ':NvimTreeToggle')
 -- remap('n', '<leader>pv<CR>', ':NvimTreeFocus')
 

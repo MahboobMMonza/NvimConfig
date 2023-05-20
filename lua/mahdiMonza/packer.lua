@@ -31,12 +31,11 @@ require('packer').startup(function(use)
     requires = {
       'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-path',
-      'saadparwaiz1/cmp_luasnip',
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-nvim-lua',
 
       -- Snippets
-      'L3MON4D3/LuaSnip',
+      { 'L3MON4D3/LuaSnip', tag = 'v1.*' },
       'rafamadriz/friendly-snippets',
       'saadparwaiz1/cmp_luasnip'
     },
@@ -56,8 +55,10 @@ require('packer').startup(function(use)
 
   use 'mfussenegger/nvim-jdtls'
   use 'mfussenegger/nvim-dap'
+  use 'rcarriga/cmp-dap'
   use { 'rcarriga/nvim-dap-ui', requires = { 'mfussenegger/nvim-dap' } }
   use { 'theHamsta/nvim-dap-virtual-text', requires = { 'mfussenegger/nvim-dap', 'nvim-treesitter/nvim-treesitter' } }
+  use { 'LiadOz/nvim-dap-repl-highlights', requires = { 'mfussenegger/nvim-dap', 'nvim-treesitter/nvim-treesitter' } }
   -- use {
   --   'nvim-treesitter/nvim-tree-docs',
   --   after = 'nvim-treesitter',
@@ -72,7 +73,7 @@ require('packer').startup(function(use)
 
   use 'nvim-tree/nvim-web-devicons'
   use 'navarasu/onedark.nvim' -- Theme inspired by Atom
-  use 'mbbill/undotree' -- Undotree
+  use 'mbbill/undotree'       -- Undotree
 
   -- Fancier statusline
   use {
@@ -80,8 +81,9 @@ require('packer').startup(function(use)
     requires = { 'nvim-tree/nvim-web-devicons', opt = true }
   }
   use 'lukas-reineke/indent-blankline.nvim' -- Add indentation guides even on blank lines
-  use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
-  use 'tpope/vim-sleuth' -- Detect tabstop and shiftwidth automatically
+  use 'numToStr/Comment.nvim'               -- "gc" to comment visual regions/lines
+  use 'tpope/vim-sleuth'                    -- Detect tabstop and shiftwidth automatically
+  use 'ray-x/lsp_signature.nvim'
 
   -- Fuzzy Finder (files, lsp, etc)
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
@@ -105,7 +107,7 @@ require('packer').startup(function(use)
 end)
 
 -- When we are bootstrapping a configuration, it doesn't
--- make sense to execute the rest of the init.lua.
+-- make sense to execute he rest of the init.lua.
 --
 -- You'll need to restart nvim, and then it will work.
 if is_bootstrap then
@@ -116,11 +118,11 @@ if is_bootstrap then
   print '=================================='
   return
 end
--- Automatically source and re-compile packer whenever you save this init.lua
+
+-- Automatically source and re-compile packer whenever saving the main init.lua
 local packer_group = vim.api.nvim_create_augroup('Packer', { clear = true })
 vim.api.nvim_create_autocmd('BufWritePost', {
   command = 'source <afile> | PackerCompile',
   group = packer_group,
-  pattern = { vim.fn.stdpath('config') .. '/*.lua' },
+  pattern = { vim.fn.expand('$MYVIMRC') },
 })
-
