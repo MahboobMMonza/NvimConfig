@@ -1,49 +1,26 @@
+local navic = require('nvim-navic')
+local replh = require('nvim-dap-repl-highlights')
 -- LSP settings.
 --  This function gets run when an LSP connects to a particular buffer.
-local on_attach = function(_, bufnr)
-  -- Shortcut for setting LSP keymaps
-  local maps = function(mode, keys, func, desc)
-    if desc then
-      desc = 'LSP: ' .. desc
-    end
+local mapper = require('mahdiMonza.configs.lspmappings')
+replh.setup()
 
-    vim.keymap.set(mode, keys, func, { buffer = bufnr, desc = desc, noremap = true })
+navic.setup({
+  lsp = {
+    auto_attach = false,
+    preference = nil,
+  },
+  highlight = true,
+})
+
+local on_attach = function(client, bufnr)
+  if client.server_capabilities.documentSymbolProvider then
+    navic.attach(client, bufnr)
   end
-
-  maps('n', '<leader>rn', vim.lsp.buf.rename, 'Rename')
-  maps('n', '<leader>ca', vim.lsp.buf.code_action, 'Code Action')
-  maps('x', '<leader>ca', ':vim.lsp.buf.code_action()<cr>', 'Ranged Code Action')
-  maps('n', 'gd', vim.lsp.buf.definition, 'Goto Definition')
-  maps('n', '<leader>gr', require('telescope.builtin').lsp_references, 'Goto References')
-  maps('n', '<leader>gI', vim.lsp.buf.implementation, 'Goto Implementation')
-  maps('n', '<leader>D', vim.lsp.buf.type_definition, 'Type Definition')
-  maps('n', '<leader>ds', require('telescope.builtin').lsp_document_symbols, 'Document Symbols')
-  maps('n', '<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Workspace Symbols')
-
-  -- See `:help K` for why this keymap
-  maps('n', 'K', vim.lsp.buf.hover, 'Hover Documentation')
-  maps('n', '<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
-
-  -- Lesser used LSP functionality
-  maps('n', 'gD', vim.lsp.buf.declaration, 'Goto Declaration')
-  maps('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, 'Workspace Add Folder')
-  maps('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, 'Workspace Remove Folder')
-  maps('n', '<leader>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, 'Workspace List Folders')
-
-  -- Create a command `:fmt` local to the LSP buffer
-  maps('n', '<leader>fmt', function(_)
-    if vim.lsp.buf.format then
-      vim.lsp.buf.format()
-    elseif vim.lsp.buf.formatting then
-      vim.lsp.buf.formatting()
-    end
-  end, 'Format current buffer')
+  -- Shortcut for setting LSP keymaps
+  mapper.set_maps(bufnr)
 end
 
-local replh = require('nvim-dap-repl-highlights')
-replh.setup()
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 --

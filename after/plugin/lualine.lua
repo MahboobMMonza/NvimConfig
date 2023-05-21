@@ -22,8 +22,8 @@ require('lualine').setup {
   sections = {
     lualine_a = { 'mode' },
     lualine_b = { 'branch', 'diff', 'diagnostics' },
-    lualine_c = { 'filename' },
-    lualine_x = { { 'encoding' }, { 'fileformat' }, { 'filetype', colored = true}, },
+    lualine_c = { 'filename', { 'navic', color_correction = 'dynamic', navic_opts = { highlights = true } } },
+    lualine_x = { { 'encoding' }, { 'fileformat' }, { 'filetype', colored = true }, },
     lualine_y = { 'progress' },
     lualine_z = { 'location' }
   },
@@ -40,4 +40,3 @@ require('lualine').setup {
   inactive_winbar = {},
   extensions = { 'nvim-tree', 'nvim-dap-ui', 'fugitive' }
 }
-

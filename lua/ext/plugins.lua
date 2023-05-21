@@ -4,7 +4,7 @@ return function(use)
   use({
     'folke/which-key.nvim',
     config = function()
-      require('which-key').setup {}
+      require('which-key').setup()
     end
   })
 
@@ -22,4 +22,9 @@ return function(use)
     },
     tag = 'nightly',
   })
+
+  use {
+    'SmiteshP/nvim-navic',
+    requires = 'neovim/nvim-lspconfig'
+  }
 end

@@ -2,6 +2,8 @@
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
 
+local navic = require('nvim-navic')
+local mappings = require('mahdiMonza.configs.lspmappings')
 local jdtls = require('jdtls')
 local mpkg = '/mason/packages/'
 local jdtls_dir = vim.fn.stdpath('data') .. mpkg .. 'jdtls'
@@ -29,6 +31,14 @@ vim.list_extend(bundle, vim.split(vim.fn.glob(jtest_dir .. extser .. '*.jar', tr
 local extendedClientCapabilities = jdtls.extendedClientCapabilities;
 extendedClientCapabilities.resolveAdditionalTextEditsSupport = true;
 
+navic.setup({
+  lsp = {
+    auto_attach = false,
+    preference = nil,
+  },
+  highlight = true,
+})
+
 -- LSP settings.
 --  This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(client, bufnr)
@@ -39,12 +49,8 @@ local on_attach = function(client, bufnr)
         bufnrs
       }) ]]
   -- Remap keys for LSP diagnostics
-  local function momap(mode, keys, func, desc)
-    if desc then
-      desc = 'LSP: ' .. desc
-    end
-
-    vim.keymap.set(mode, keys, func, { buffer = bufnr, desc = desc, noremap = true })
+  if client.server_capabilities.documentSymbolProvider then
+    navic.attach(client, bufnr)
   end
 
   local function arginp()
@@ -55,22 +61,14 @@ local on_attach = function(client, bufnr)
     end)
   end
 
-  momap('n', '<leader>rn', vim.lsp.buf.rename, 'Rename')
-  momap('n', '<leader>ca', vim.lsp.buf.code_action, 'Code Action')
-  momap('n', '<leader>oi', "<Cmd>lua require('jdtls').organize_imports()<cr>", 'Organize Imports')
-  momap('n', '<leader>xv', "<Cmd>lua require('jdtls').extract_variable()<cr>", 'Extract Variable')
-  momap('v', '<leader>xv', "<Esc><Cmd>lua require('jdtls').extract_variable(true)<cr>", 'Extract Variable')
-  momap('n', '<leader>xc', "<Cmd>lua require('jdtls').extract_constant()<cr>", 'Extract Constant')
-  momap('v', '<leader>xc', "<Esc><Cmd>lua require('jdtls').extract_constant(true)<cr>", 'Extract Constant')
-  momap('v', '<leader>xm', "<Esc><Cmd>lua require('jdtls').extract_method(true)<cr>", 'Extract Method')
-  momap('x', '<leader>ca', ':<C-u>lua vim.lsp.buf.range_code_action()<cr>', 'Ranged Code Action')
-  momap('n', 'gd', vim.lsp.buf.definition, 'Goto Definition')
-  momap('n', '<leader>gr', require('telescope.builtin').lsp_references, 'Goto References')
-  momap('n', '<leader>gI', vim.lsp.buf.implementation, 'Goto Implementation')
-  momap('n', '<leader>D', vim.lsp.buf.type_definition, 'Type Definition')
-  momap('n', '<leader>ds', require('telescope.builtin').lsp_document_symbols, 'Document Symbols')
-  momap('n', '<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, 'Workspace Symbols')
-  momap('n', '<leader>dm', function()
+  mappings.set_maps(bufnr)
+  mappings.maps('n', '<leader>oi', jdtls.organize_imports, 'Organize Imports', bufnr)
+  mappings.maps('n', '<leader>xv', jdtls.extract_variable, 'Extract Variable', bufnr)
+  mappings.maps('v', '<leader>xv', function() jdtls.extract_variable(true) end, 'Extract Variable', bufnr)
+  mappings.maps('n', '<leader>xc', jdtls.extract_constant, 'Extract Constant', bufnr)
+  mappings.maps('v', '<leader>xc', function() jdtls.extract_constant(true) end, 'Extract Constant', bufnr)
+  mappings.maps('v', '<leader>xm', function() jdtls.extract_method(true) end, 'Extract Method', bufnr)
+  mappings.maps('n', '<leader>dm', function()
     require('jdtls.dap').setup_dap_main_class_configs({
       config_overrides = {
         args = arginp,
@@ -78,33 +76,13 @@ local on_attach = function(client, bufnr)
           skipClasses = { 'java.lang.ClassLoader' }
         },
       }
-    })
+    }, 'Setup DAP Main Class Configs', bufnr)
   end
   , 'Debug Main Setup')
-  momap('n', '<leader>dtc', require('jdtls').test_class, 'Debug Test Class')
-  momap('n', '<leader>dtm', require('jdtls').test_nearest_method, 'Debug Test Method')
+  mappings.maps('n', '<leader>dtc', jdtls.test_class, 'Debug Test Class', bufnr)
+  mappings.maps('n', '<leader>dtm', jdtls.test_nearest_method, 'Debug Test Method', bufnr)
 
-  -- See `:help K` for why this keymap
-  momap('n', 'K', vim.lsp.buf.hover, 'Hover Documentation')
-  momap('n', '<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
-
-  -- Lesser used LSP functionality
-  momap('n', 'gD', vim.lsp.buf.declaration, 'Goto Declaration')
-  momap('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, 'Workspace Add Folder')
-  momap('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, 'Workspace Remove Folder')
-  momap('n', '<leader>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, 'Workspace List Folders')
-
-  -- Create a motion ` fmt` local to the LSP buffer
-  momap('n', '<leader>fmt', function(_)
-    if vim.lsp.buf.format then
-      vim.lsp.buf.format()
-    elseif vim.lsp.buf.formatting then
-      vim.lsp.buf.formatting()
-    end
-  end, 'Format current buffer')
-  require('jdtls').setup_dap({ hotcodereplace = 'auto' })
+  jdtls.setup_dap({ hotcodereplace = 'auto' })
   require('jdtls.dap').setup_dap_main_class_configs({
     config_overrides = {
       args = arginp,
@@ -222,5 +200,5 @@ config['init_options'] = {
 config['on_attach'] = on_attach
 -- This starts a new client & server,
 -- or attaches to an existing client & server depending on the `root_dir`.
-require('jdtls').start_or_attach(config)
+jdtls.start_or_attach(config)
 require('fidget').setup()
