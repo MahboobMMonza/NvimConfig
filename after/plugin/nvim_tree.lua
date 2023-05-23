@@ -25,8 +25,9 @@ local remap = function(modes, motion, operation, opts)
 end
 
 -- Keymap to open nvim-tree easily
-remap('n', '<leader>pv<CR>', ':NvimTreeFocus<CR>')
+remap('n', '<leader>pf', ':NvimTreeFocus<CR>')
 remap('n', '<leader>pvt', ':NvimTreeToggle<CR>')
-remap('n', '<leader>pvf', ':NvimTreeToggle')
+remap('n', '<leader>pvf', ':NvimTreeFindFile<CR>')
+remap('n', '<leader>pvc', ':NvimTreeCollapse<CR>')
 -- remap('n', '<leader>pv<CR>', ':NvimTreeFocus')
 

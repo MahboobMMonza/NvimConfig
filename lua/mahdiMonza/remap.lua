@@ -11,7 +11,7 @@ remap('n', '<leader>zz', v.cmd.w)
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
-remap({ 'n', 'v', 'x', 'i' }, '<C-z>', '<Nop>', { silent = true })
+-- remap({ 'n', 'v', 'x', 'i' }, '<C-z>', '<Nop>', { silent = true })
 remap({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true, noremap = true })
 remap({ 'n', 'v' }, 'Y', 'yg$') -- Remap Y to do yg$ instead of synonym for yy
 
