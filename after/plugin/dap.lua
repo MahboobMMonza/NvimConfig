@@ -43,11 +43,11 @@ maps('n', '<leader>dC', dap.clear_breakpoints, 'DAP Clear Breakpoints')
 maps('n', '<leader>dS', dap.step_back, 'DAP Step Back')
 maps('n', '<leader>dB', function() dap.set_breakpoint(arginp("Condition: ")) end,
   'DAP Set Conditional Breakpoint (input condition)')
-maps('n', '<leader>dv', function() dap.set_breakpoint(arginp("Condition: "), vim.fn.input("Hits: ")) end,
+maps('n', '<leader>dv', function() dap.set_breakpoint(arginp("Condition: "), arginp("Hits: ")) end,
   'DAP Set Conditional Breakpoint (input condition)')
 maps('n', '<leader>dV',
-  function() dap.set_breakpoint(arginp("Condition: "), vim.fn.input("Hits: "), vim.fn.input("Log: ")) end,
-  'DAP Set Conditional Breakpoint (input condition)')
+  function() dap.set_breakpoint(arginp("Condition: "), arginp("Hits: "), arginp("Log: ")) end,
+  'DAP Set Complete Conditional Breakpoint (input conditions)')
 maps('n', '<leader>dl', function() dap.set_breakpoint(nil, nil, arginp("Log: ")) end,
   'DAP Set Log Breakpoint (input condition)')
 maps('n', '<leader>de',
