@@ -16,7 +16,6 @@ return {
     },
   },
 
-  'mfussenegger/nvim-jdtls',
   {
     'LiadOz/nvim-dap-repl-highlights',
     dependencies = {

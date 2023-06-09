@@ -56,6 +56,7 @@ return {
         { name = 'luasnip' },
         { name = 'buffer' },
         { name = 'path' },
+        { name = 'crates' },
       },
       enabled = function()
         return vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt"

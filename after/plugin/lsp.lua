@@ -41,10 +41,6 @@ local server_overrides = {
   },
 }
 
--- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
-
 -- Setup mason so it can manage external tooling
 require('mason').setup()
 
@@ -61,7 +57,7 @@ local excl_servers = {'jdtls', 'rust_analyzer'}
 for _, server_name in ipairs(mason_lspconfig.get_installed_servers()) do
   if (not excl_servers[server_name]) then
     local config = {
-      capabilities = capabilities,
+      capabilities = lsat.capabilities,
       on_attach = lsat.on_attach,
       settings = server_overrides[server_name],
     }

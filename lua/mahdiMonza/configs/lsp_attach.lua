@@ -13,6 +13,9 @@ M.setup_navic = function()
   })
 end
 
+-- nvim-cmp supports additional completion capabilities, so broadcast that to servers
+M.capabilities = vim.lsp.protocol.make_client_capabilities()
+M.capabilities = require('cmp_nvim_lsp').default_capabilities(M.capabilities)
 
 M.on_attach = function(client, bufnr)
   if client.server_capabilities.documentSymbolProvider then
