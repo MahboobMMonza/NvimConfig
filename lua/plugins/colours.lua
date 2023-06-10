@@ -4,8 +4,19 @@ return {
   priority = 1000,
   config = function()
     require('onedark').setup({
-      style = 'darker',
-      highlights = { IndentBlanklineContextChar = { fg = '$purple', fmt = 'nocombine' } },
+      style = 'deep',
+      highlights = {
+        IndentBlanklineContextChar = {
+          fg = '$purple',
+          fmt = 'nocombine',
+        },
+        ["@lsp.type.interface"] = { fg = '$green', fmt = 'italic', },
+        ["@string.special"] = { fg = '$orange' },
+        ["@string.escape"] = { fg = '$orange' },
+        ["@character.special"] = { fg = '$orange' },
+        ["@punctuation.special"] = { fg = '$orange' },
+        ["@type"] = { fg = '$purple', fmt = 'italic' },
+      },
       ending_tildes = false,
     })
     require('onedark').load()
