@@ -15,7 +15,7 @@ return {
         ["@string.escape"] = { fg = '$orange' },
         ["@character.special"] = { fg = '$orange' },
         ["@punctuation.special"] = { fg = '$orange' },
-        ["@type"] = { fg = '$purple', fmt = 'italic' },
+        ["@type.qualifier"] = { fg = '$purple', fmt = 'italic' },
       },
       ending_tildes = false,
     })

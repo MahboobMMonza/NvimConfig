@@ -65,5 +65,3 @@ for _, server_name in ipairs(mason_lspconfig.get_installed_servers()) do
     require('lspconfig')[server_name].setup(config)
   end
 end
-
-require('fidget').setup()
