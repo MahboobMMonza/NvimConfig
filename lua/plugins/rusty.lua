@@ -24,7 +24,7 @@ return {
               lsat.on_attach(_, bufnr)
               vim.keymap.set('n', '<leader>k', require('rust-tools').hover_actions.hover_actions,
                 { buffer = bufnr, desc = 'Rust-Tools Hover Actions' })
-              vim.keymap.set('n', '<leader>a', require('rust-tools').code_action_group.code_action_group,
+              vim.keymap.set('n', '<leader>ga', require('rust-tools').code_action_group.code_action_group,
                 { buffer = bufnr, desc = 'Rust-Tools Code Action Group' })
             end,
             capabilities = lsat.capabilities,
