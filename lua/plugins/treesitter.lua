@@ -1,8 +1,8 @@
 return {
   -- Highlight, edit, and navigate code
   'nvim-treesitter/nvim-treesitter',
-  build = ':TSUpdate',
   dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
+  build = ':TSUpdate',
   config = function()
     -- [[ Configure Treesitter ]]
     -- See `:help nvim-treesitter`
@@ -14,12 +14,6 @@ return {
       indent = { enable = true, disable = { 'python' } },
       incremental_selection = {
         enable = true,
-        keymaps = {
-          init_selection = '<c-space>',
-          node_incremental = '<c-space>',
-          scope_incremental = '<c-s>',
-          node_decremental = '<c-backspace>',
-        },
       },
       textobjects = {
         select = {
