@@ -51,7 +51,7 @@ mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(server_overrides),
 }
 
-local excl_servers = {'jdtls', 'rust_analyzer'}
+local excl_servers = { ['jdtls'] = true, ['rust_analyzer'] = true }
 
 -- local java_config = require('ftplugin.java').config
 for _, server_name in ipairs(mason_lspconfig.get_installed_servers()) do

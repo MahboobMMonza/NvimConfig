@@ -16,6 +16,11 @@ return {
         ["@character.special"] = { fg = '$orange' },
         -- ["@punctuation.special"] = { fg = '$orange' },
         ["@type.qualifier"] = { fg = '$purple', fmt = 'italic' },
+        ["@lsp.type.property"] = { fg = '$red' },
+        ["@field"] = { fg = '$red' },
+        ["@parameter"] = { fg = '$fg', fmt = 'italic' },
+        ["@lsp.type.parameter"] = { fg = '$fg', fmt = 'italic' },
+        ["@constant.java"] = { fmt = 'italic' },
       },
       ending_tildes = false,
     })
