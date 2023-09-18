@@ -7,7 +7,7 @@ local jtest_dir = vim.fn.stdpath('data') .. mpkg .. 'java-test'
 local ext_ser = '/extension/server/'
 local config_dir = jdtls_dir .. '/config_linux'
 local plugins_dir = jdtls_dir .. '/plugins/'
-local path_to_jar = plugins_dir .. 'org.eclipse.equinox.launcher_1.6.400.v20210924-0641.jar'
+local path_to_jar = vim.fn.glob(plugins_dir .. 'org.eclipse.equinox.launcher_*.jar')
 
 local root_markers = { ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" }
 local root_dir = require('jdtls.setup').find_root(root_markers)
@@ -52,7 +52,7 @@ local on_attach = function(client, bufnr)
   lsat.maps('n', '<leader>xc', jdtls.extract_constant, 'Extract Constant', bufnr)
   lsat.maps('v', '<leader>xc', function() jdtls.extract_constant(true) end, 'Extract Constant', bufnr)
   lsat.maps('v', '<leader>xm', function() jdtls.extract_method(true) end, 'Extract Method', bufnr)
-  lsat.maps('n', '<leader>dm', function()
+  --[[ lsat.maps('n', '<leader>dm', function()
     require('jdtls.dap').setup_dap_main_class_configs({
       config_overrides = {
         args = arginp,
@@ -62,7 +62,7 @@ local on_attach = function(client, bufnr)
       }
     }, 'Setup DAP Main Class Configs', bufnr)
   end
-  , 'Debug Main Setup')
+  , 'Debug Main Setup') ]]
   lsat.maps('n', '<leader>dtc', jdtls.test_class, 'Debug Test Class', bufnr)
   lsat.maps('n', '<leader>dtm', jdtls.test_nearest_method, 'Debug Test Method', bufnr)
 
