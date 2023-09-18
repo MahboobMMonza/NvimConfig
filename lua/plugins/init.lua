@@ -30,8 +30,5 @@ return {
 
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
-  -- Fuzzy Finder Algorithm which needs local dependencies to be built. Only load when `make` is available
-  { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make', cond = vim.fn.executable 'make' == 1 },
-
   -- Add custom plugins to packer from ~/.config/nvim/lua/ext/plugins.lua
 }
