@@ -25,6 +25,13 @@ M.on_attach = function(client, bufnr)
   mapper.set_maps(bufnr)
 end
 
+M.clangd_on_attach = function(client, bufnr)
+  M.on_attach(client, bufnr)
+  client.server_capabilities.signatureHelpProvider = false
+  -- Shortcut for setting LSP keymaps
+  mapper.set_maps(bufnr)
+end
+
 M.maps = mapper.maps
 
 return M

@@ -12,7 +12,8 @@ return {
     -- Snippets
     { 'L3MON4D3/LuaSnip', version = '1.*' },
     'rafamadriz/friendly-snippets',
-    'saadparwaiz1/cmp_luasnip'
+    'saadparwaiz1/cmp_luasnip',
+    'p00f/clangd_extensions.nvim',
   },
   config = function()
     local cmp, luasnip = require('cmp'), require('luasnip')
@@ -62,6 +63,18 @@ return {
         return vim.api.nvim_buf_get_option(0, "buftype") ~= "prompt"
             or require("cmp_dap").is_dap_buffer()
       end,
+      sorting = {
+        comparators = {
+          cmp.config.compare.offset,
+          cmp.config.compare.exact,
+          cmp.config.compare.recently_used,
+          require("clangd_extensions.cmp_scores"),
+          cmp.config.compare.kind,
+          cmp.config.compare.sort_text,
+          cmp.config.compare.length,
+          cmp.config.compare.order,
+        },
+      },
     })
     cmp.setup.filetype({ "dap-repl", "dapui_watches", "dapui_hover" },
       {

@@ -45,7 +45,7 @@ local server_overrides = {
 require('mason').setup()
 
 -- Ensure the servers above are installed
-local mason_lspconfig = require 'mason-lspconfig'
+local mason_lspconfig = require('mason-lspconfig')
 
 mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(server_overrides),
@@ -58,7 +58,7 @@ for _, server_name in ipairs(mason_lspconfig.get_installed_servers()) do
   if (not excl_servers[server_name]) then
     local config = {
       capabilities = lsat.capabilities,
-      on_attach = lsat.on_attach,
+      on_attach = (server_name ~= 'clangd' and { lsat.on_attach } or { lsat.clangd_on_attach })[1],
       settings = server_overrides[server_name],
     }
 
