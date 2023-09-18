@@ -1,5 +1,4 @@
 return {
-  -- Package manager
   {
     -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
@@ -14,14 +13,6 @@ return {
       -- Additional lua configuration, makes nvim stuff amazing
       'folke/neodev.nvim',
     },
-  },
-
-  {
-    'LiadOz/nvim-dap-repl-highlights',
-    dependencies = {
-      'mfussenegger/nvim-dap',
-      'nvim-treesitter/nvim-treesitter'
-    }
   },
 
   -- Git related plugins

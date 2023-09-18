@@ -1,5 +1,4 @@
 local v = vim
-local dap = require('dap')
 
 local function signs(name, sign, thl)
   v.fn.sign_define(name, { text = sign, texthl = thl, linehl = '', numhl = '' })
@@ -23,19 +22,10 @@ end
 
 return {
   'mfussenegger/nvim-dap',
-  dependencies = {
-    'rcarriga/nvim-dap-ui',
-    'williamboman/mason.nvim',
-    'jay-babu/mason-nvim-dap.nvim',
-    -- debuggers
-  },
   config = function()
-    require('mason-nvim-dap').setup({
-      automatic_setup = true,
-      handlers = {},
-    })
     -- events for dap UI
     -- Update signs for dap
+    local dap = require('dap')
     signs('DapBreakpoint', '', 'DiagnosticSignHint')
     signs('DapBreakpointCondition', '󰟃', 'DiagnosticSignWarn')
     signs('DapLogPoint', '󰸥', 'DiagnosticSignInfo')
