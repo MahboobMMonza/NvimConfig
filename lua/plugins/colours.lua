@@ -16,6 +16,7 @@ return {
         ["@character.special"] = { fg = '$orange' },
         -- ["@punctuation.special"] = { fg = '$orange' },
         ["@type.qualifier"] = { fg = '$purple', fmt = 'italic' },
+        ["@type.builtin.java"] = { fg = '$purple' },
         ["@lsp.type.property"] = { fg = '$red' },
         ["@field"] = { fg = '$red' },
         ["@parameter"] = { fg = '$fg', fmt = 'italic' },
