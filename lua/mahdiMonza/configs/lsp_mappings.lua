@@ -32,11 +32,7 @@ M.set_maps = function(bufnr)
 
   -- Create a command `:fmt` local to the LSP buffer
   M.maps('n', '<leader>fmt', function(_)
-    if vim.lsp.buf.format then
-      vim.lsp.buf.format()
-    elseif vim.lsp.buf.formatting then
-      vim.lsp.buf.formatting()
-    end
+    vim.lsp.buf.format()
   end, 'Format current buffer', bufnr)
 end
 
