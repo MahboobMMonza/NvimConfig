@@ -5,8 +5,8 @@ local lsp = vim.lsp
 replh.setup()
 lsat.setup_navic()
 
-lsp.handlers['textDocument/hover'] = lsp.with(lsp.handlers.hover, { border = 'single' })
-lsp.handlers['textDocument/signatureHelp'] = lsp.with(lsp.handlers.signature_help, { border = 'single' })
+lsp.handlers['textDocument/hover'] = lsp.with(lsp.handlers.hover, { border = 'rounded' })
+lsp.handlers['textDocument/signatureHelp'] = lsp.with(lsp.handlers.signature_help, { border = 'rounded' })
 
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
