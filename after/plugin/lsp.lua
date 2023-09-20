@@ -1,18 +1,12 @@
 local replh = require('nvim-dap-repl-highlights')
 local lsat = require('mahdiMonza.configs.lsp_attach')
+local lsp = vim.lsp
 
 replh.setup()
 lsat.setup_navic()
--- LSP settings.
---  This function gets run when an LSP connects to a particular buffer.
 
---[[ local on_attach = function(client, bufnr)
-  if client.server_capabilities.documentSymbolProvider then
-    navic.attach(client, bufnr)
-  end
-  -- Shortcut for setting LSP keymaps
-  mapper.set_maps(bufnr)
-end ]]
+lsp.handlers['textDocument/hover'] = lsp.with(lsp.handlers.hover, { border = 'single' })
+lsp.handlers['textDocument/signatureHelp'] = lsp.with(lsp.handlers.signature_help, { border = 'single' })
 
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -20,16 +14,6 @@ end ]]
 --  Add any additional override configuration in the following tables. They will be passed to
 --  the `settings` field of the server config. You must look up that documentation yourself.
 local server_overrides = {
-  -- clangd = {},
-  -- gopls = {},
-  -- pyright = {},
-  -- tsserver = {},
-  --[[ rust_analyzer = {
-    cmd = {
-      "rustup", "run", "stable", "rust-analyzer",
-    }
-  } ]]
-
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
