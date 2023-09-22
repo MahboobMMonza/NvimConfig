@@ -75,7 +75,6 @@ local on_attach = function(client, bufnr)
       },
     }
   })                                    -- discover main class
-  require('jdtls.setup').add_commands() -- not related to debugging but you probably want this
   -- vim.nvim_create_user_command({
   --   bang = true,
   --   buffer = true,
