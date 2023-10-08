@@ -45,8 +45,8 @@ remap({ 'n', 'v' }, '<leader>sps', '"+p')
 remap({ 'n', 'v' }, '<leader>Sps', '"+P')
 
 -- Don't leave visual mode after indenting
-remap('n', '>', '>gv^')
-remap('n', '<', '<gv^')
+remap('v', '>', '>gv^')
+remap('v', '<', '<gv^')
 
 remap('v', '.', ':normal .<CR>', { silent = true, desc = 'Apply previous command to selected text' })
 
