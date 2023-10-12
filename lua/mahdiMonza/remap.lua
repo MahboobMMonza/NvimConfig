@@ -25,6 +25,10 @@ remap('v', 'K', ":m '<-2<CR>gv=gv", { desc = 'Move the current selection up one 
 -- Don't move cursor when joining lines
 remap('n', 'J', 'mzJ`z')
 
+-- Remap H and L to go to the effective beginnings and endings of the current line
+remap('n', 'H', '^', { noremap = true })
+remap('n', 'L', '$', { noremap = true })
+
 -- Remap to re-center cursor when moving up half blocks
 remap('n', '<C-d>', '<C-d>zz')
 remap('n', '<C-u>', '<C-u>zz')
