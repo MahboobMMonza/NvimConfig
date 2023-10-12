@@ -6,7 +6,7 @@ return {
     require('onedark').setup({
       style = 'deep',
       highlights = {
-        IndentBlanklineContextChar = {
+        IblScope = {
           fg = '$purple',
           fmt = 'nocombine',
         },
@@ -16,7 +16,9 @@ return {
         ["@character.special"] = { fg = '$orange' },
         -- ["@punctuation.special"] = { fg = '$orange' },
         ["@type.qualifier"] = { fg = '$purple', fmt = 'italic' },
-        ["@type.builtin.java"] = { fg = '$purple' },
+        ["@type.builtin"] = { fg = '$purple' },
+        ["@lsp.type.type.cpp"] = { fg = '$green' },
+        ["@lsp.type.macro"] = { fg = '$blue', fmt = 'bold' },
         ["@lsp.type.property"] = { fg = '$red' },
         ["@field"] = { fg = '$red' },
         ["@parameter"] = { fg = '$fg', fmt = 'italic' },
