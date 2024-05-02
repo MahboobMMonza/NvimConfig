@@ -18,7 +18,6 @@ return {
         ["@type.qualifier"] = { fg = '$purple', fmt = 'italic' },
         ["@type.builtin"] = { fg = '$purple' },
         ["@lsp.type.type.cpp"] = { fg = '$green' },
-        ["@lsp.type.type.c"] = { fg = '$green' },
         ["@lsp.type.macro"] = { fg = '$blue', fmt = 'bold' },
         ["@lsp.type.property"] = { fg = '$red' },
         ["@lsp.property"] = { fg = '$red' },
