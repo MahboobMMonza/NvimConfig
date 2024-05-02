@@ -51,7 +51,7 @@ return {
     maps('n', '<leader>de',
       function() dap.set_exception_breakpoints(vim.fn.split(vim.fn.input("Exception Types: "), " ", false)) end,
       'DAP Set Exception Breakpoint (input condition)')
-    maps('n', '<leader>dt', dap.terminate, 'DAP Terminate')
+    maps('n', '<leader>dtt', dap.terminate, 'DAP Terminate')
     maps('n', '<leader>dr', dap.repl.open, 'DAP REPL Open')
   end
 }

@@ -36,7 +36,7 @@ local on_attach = function(client, bufnr)
         bufnrs
       }) ]]
   -- Remap keys for LSP diagnostics
-  lsat.on_attach(client, bufnr)
+  lsat.on_attach.default(client, bufnr)
 
   local function arginp()
     return coroutine.create(function(dap_run_co)

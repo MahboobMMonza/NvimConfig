@@ -30,7 +30,6 @@ M.set_maps = function(bufnr)
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, 'Workspace List Folders', bufnr)
 
-  -- Create a command `:fmt` local to the LSP buffer
   M.maps('n', '<leader>fmt', function(_)
     vim.lsp.buf.format()
   end, 'Format current buffer', bufnr)

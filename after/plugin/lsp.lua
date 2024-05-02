@@ -23,10 +23,23 @@ local server_overrides = {
       }
     },
   },
+  gopls = {
+    settings = {
+      gopls = {
+        completeUnimported = true,
+        usePlaceholders = true,
+        analyses = {
+          unusedparams = true,
+        },
+        staticcheck = true,
+        gofumpt = true,
+      },
+    },
+  },
 }
 
 -- Setup mason so it can manage external tooling
-require('mason').setup()
+-- require('mason').setup()
 
 -- Ensure the servers above are installed
 local mason_lspconfig = require('mason-lspconfig')
@@ -42,7 +55,7 @@ for _, server_name in ipairs(mason_lspconfig.get_installed_servers()) do
   if (not excl_servers[server_name]) then
     local config = {
       capabilities = lsat.capabilities,
-      on_attach = (server_name ~= 'clangd' and { lsat.on_attach } or { lsat.clangd_on_attach })[1],
+      on_attach = lsat.on_attach[server_name],
       settings = server_overrides[server_name],
     }
 

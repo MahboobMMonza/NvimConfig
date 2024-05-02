@@ -1,7 +1,7 @@
 return {
   'nvim-lualine/lualine.nvim',
   dependencies = { 'nvim-tree/nvim-web-devicons' },
-  config = {
+  opts = {
     options = {
       icons_enabled = true,
       theme = 'onedark',

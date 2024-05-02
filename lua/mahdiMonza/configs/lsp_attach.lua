@@ -17,7 +17,9 @@ end
 M.capabilities = vim.lsp.protocol.make_client_capabilities()
 M.capabilities = require('cmp_nvim_lsp').default_capabilities(M.capabilities)
 
-M.on_attach = function(client, bufnr)
+M.on_attach = {}
+
+M.on_attach.default = function(client, bufnr)
   if client.server_capabilities.documentSymbolProvider then
     navic.attach(client, bufnr)
   end
@@ -25,8 +27,16 @@ M.on_attach = function(client, bufnr)
   mapper.set_maps(bufnr)
 end
 
-M.clangd_on_attach = function(client, bufnr)
-  M.on_attach(client, bufnr)
+local metatable = {
+  __index = function(t)
+    return t.default
+  end
+}
+
+setmetatable(M.on_attach, metatable)
+
+M.on_attach.clangd = function(client, bufnr)
+  M.on_attach.default(client, bufnr)
   client.server_capabilities.signatureHelpProvider = false
   -- Shortcut for setting LSP keymaps
   mapper.set_maps(bufnr)

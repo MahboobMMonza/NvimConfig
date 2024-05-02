@@ -21,7 +21,7 @@ return {
         {
           server = {
             on_attach = function(_, bufnr)
-              lsat.on_attach(_, bufnr)
+              lsat.on_attach.default(_, bufnr)
               vim.keymap.set('n', '<leader>k', require('rust-tools').hover_actions.hover_actions,
                 { buffer = bufnr, desc = 'Rust-Tools Hover Actions' })
               vim.keymap.set('n', '<leader>ga', require('rust-tools').code_action_group.code_action_group,
