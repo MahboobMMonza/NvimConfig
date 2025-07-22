@@ -8,7 +8,9 @@ local ext_ser = '/extension/server/'
 local config_dir = jdtls_dir .. '/config_linux'
 local plugins_dir = jdtls_dir .. '/plugins/'
 local path_to_jar = vim.fn.glob(plugins_dir .. 'org.eclipse.equinox.launcher_*.jar')
-
+-- if anyone knows how to not make this hard-coded, pls let me know
+local jvm_dir = '/usr/lib/jvm'
+-- local jvm_dir = vim.fn.finddir({name='jvm', path='/'})
 local root_markers = { ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" }
 local root_dir = require('jdtls.setup').find_root(root_markers)
 if root_dir == "" then
@@ -111,7 +113,7 @@ local config = {
   -- for a list of options
   settings = {
     java = {
-      home = os.getenv('JAVA_HOME'),
+      -- home = os.getenv('JAVA_HOME'),
       eclipse = {
         downloadSources = true,
       },
@@ -119,9 +121,14 @@ local config = {
         updateBuildConfiguration = "interactive",
         runtimes = {
           {
+            name = "JavaSE-21",
+            path = jvm_dir .. "/java-21-openjdk-amd64",
+          },
+          {
             name = "JavaSE-17",
-            path = os.getenv('JAVA_HOME'),
+            path = jvm_dir .. "/java-17-openjdk-amd64",
           }
+
         },
         maven = { downloadSources = true },
         implementationCodeLens = { enabled = true },
