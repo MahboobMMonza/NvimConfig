@@ -1,6 +1,5 @@
 local function my_on_attach(bufnr)
   local api = require('nvim-tree.api')
-
   local function opts(desc)
     return { desc = 'Nvim Tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
   end

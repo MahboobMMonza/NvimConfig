@@ -1,9 +1,13 @@
 return {
   'folke/lazydev.nvim',
+  ft = 'lua',
   opts = {
     library = {
-      types = true,
-      plugins = true,
-    }
+    },
+    integrations = {
+      lspconfig = true,
+      cmp = true,
+      coq = false,
+    },
   },
 }

@@ -89,8 +89,7 @@ local config = {
   -- The command that starts the language server
   -- See: https://github.com/eclipse/eclipse.jdt.ls#running-from-the-command-line
   cmd = {
-
-    'java', -- or '/path/to/java17_or_newer/bin/java'
+    'java',
 
     '-Declipse.application=org.eclipse.jdt.ls.core.id1',
     '-Dosgi.bundles.defaultStartLevel=4',
@@ -127,6 +126,10 @@ local config = {
           {
             name = "JavaSE-17",
             path = jvm_dir .. "/java-17-openjdk-amd64",
+          },
+          {
+            name = "JavaSE-11",
+            path = jvm_dir .. "/java-11-openjdk-amd64",
           }
 
         },
@@ -136,7 +139,7 @@ local config = {
         references = { includeDecompiledSources = true },
         format = {
           enabled = true,
-          settigns = {
+          settings = {
             url = vim.fn.stdpath("config") .. "/lang-servers/intellij-java-google-style.xml",
             profile = "GoogleStyle"
           },

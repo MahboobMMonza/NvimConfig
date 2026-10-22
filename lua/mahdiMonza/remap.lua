@@ -57,3 +57,9 @@ remap('v', '.', ':normal .<CR>', { silent = true, desc = 'Apply previous command
 -- Navigate buffers
 remap('n', ']b', '<CMD>bn<CR>', { desc = 'Next buffer' })
 remap('n', '[b', '<CMD>bp<CR>', { desc = 'Previous buffer' })
+
+-- Diagnostic keymaps
+remap('n', '[d', function() vim.diagnostic.jump({ count = -1 }) end, { desc = 'Previous Diagnostic Issue' })
+remap('n', ']d', function() vim.diagnostic.jump({ count = 1 }) end, { desc = 'Next Diagnostic Issue' })
+remap('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open Diagnostic Message in Floating Window' })
+remap('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Add Current Diagnostic Message to Location List' })

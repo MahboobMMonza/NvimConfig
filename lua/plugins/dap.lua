@@ -6,7 +6,7 @@ end
 
 local maps = function(mode, keys, func, desc)
   if desc then
-    desc = 'LSP: ' .. desc
+    desc = 'DAP: ' .. desc
   end
 
   v.keymap.set(mode, keys, func, { desc = desc, noremap = true })
