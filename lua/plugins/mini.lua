@@ -58,19 +58,21 @@ return {
 			handlers = {
 				view = function(state)
 					snacks_like_view(state)
-					local win_id = state.floatwin_win_id
-					local buf_id = state.floatwin_buf_id
+					local win_id = state.data.floatwin_win_id
+					local buf_id = state.data.floatwin_buf_id
 					if win_id and vim.api.nvim_win_is_valid(win_id) then
 						vim.api.nvim_set_option_value(
 							"winhighlight",
 							"NormalFloat:SnacksInputNormal,FloatBorder:SnacksInputBorder,FloatTitle:SnacksInputTitle",
 							{ win = win_id }
 						)
-						vim.api.nvim_set_option_value("signcolumn", "yes", { win = win_id })
+						vim.api.nvim_set_option_value("signcolumn", "yes:2", { win = win_id })
+						-- vim.api.nvim_set_option_value("foldcolumn", "2", { win = win_id })
 					end
 					if buf_id and vim.api.nvim_buf_is_valid(buf_id) then
+						vim.api.nvim_buf_clear_namespace(buf_id, sign_ns, 0, -1)
 						vim.api.nvim_buf_set_extmark(buf_id, sign_ns, 0, 0, {
-							sign_text = "",
+							sign_text = " ",
 							sign_hl_group = "SnacksInputIcon",
 						})
 					end
@@ -92,7 +94,7 @@ return {
 		vim.keymap.del("x", "ys")
 		---@diagnostic disable-next-line: duplicate-set-field
 		MiniSurround.user_input = function(prompt, text)
-			return MiniInput.get({ prompt = prompt, { init_keys = text } })
+			return MiniInput.get({ prompt = prompt, init_keys = text })
 		end
 	end,
 }
