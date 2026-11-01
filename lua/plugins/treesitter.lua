@@ -1,65 +1,49 @@
+local langs = { 'c', 'cpp', 'go', 'java', 'lua', 'markdown', 'python', 'rust', 'typescript', 'vimdoc' }
+
 return {
-  -- Highlight, edit, and navigate code
-  'nvim-treesitter/nvim-treesitter',
-  dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
-  build = ':TSUpdate',
-  config = function()
-    -- [[ Configure Treesitter ]]
-    -- See `:help nvim-treesitter`
-    require('nvim-treesitter.configs').setup({
-      -- Add languages to be installed here that you want installed for treesitter
-      ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'vimdoc', 'java', 'markdown' },
+  {
+    -- Highlight, edit, and navigate code
+    --
+    -- The `main` branch of nvim-treesitter is a rewrite that targets
+    -- Neovim 0.12+: it provides parsers, queries and the install machinery.
+    -- Highlighting, indentation and text objects are enabled explicitly.
+    'nvim-treesitter/nvim-treesitter',
+    branch = 'main',
+    -- The rewrite does not support lazy loading.
+    lazy = false,
+    build = ':TSUpdate',
+    config = function()
+      local ts = require('nvim-treesitter')
 
-      highlight = { enable = true },
-      indent = { enable = true, disable = { 'python' } },
-      incremental_selection = {
-        enable = true,
-      },
-      textobjects = {
-        select = {
-          enable = true,
-          lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-          keymaps = {
-            -- You can use the capture groups defined in textobjects.scm
-            ['aa'] = '@parameter.outer',
-            ['ia'] = '@parameter.inner',
-            ['af'] = '@function.outer',
-            ['if'] = '@function.inner',
-            ['ac'] = '@class.outer',
-            ['ic'] = '@class.inner',
-          },
-        },
-        move = {
-          enable = true,
-          set_jumps = true, -- whether to set jumps in the jumplist
-          goto_next_start = {
-            [']m'] = '@function.outer',
-            [']]'] = '@class.outer',
-          },
-          goto_next_end = {
-            [']M'] = '@function.outer',
-            [']['] = '@class.outer',
-          },
-          goto_previous_start = {
-            ['[m'] = '@function.outer',
-            ['[['] = '@class.outer',
-          },
-          goto_previous_end = {
-            ['[M'] = '@function.outer',
-            ['[]'] = '@class.outer',
-          },
-        },
-        swap = {
-          enable = true,
-          swap_next = {
-            ['<leader>a'] = '@parameter.inner',
-          },
-          swap_previous = {
-            ['<leader>A'] = '@parameter.inner',
-          },
-        },
-      },
-    })
+      ts.setup({
+        install_dir = vim.fn.stdpath('data') .. '/site',
+      })
 
-  end
+      -- Install the parsers we use. This is a no-op when they are present.
+      pcall(function()
+        ts.install(langs)
+      end)
+
+      -- Highlighting: provided by Neovim, enabled per filetype.
+      vim.api.nvim_create_autocmd('FileType', {
+        group = vim.api.nvim_create_augroup('MahdiTreesitter', { clear = true }),
+        pattern = langs,
+        callback = function(args)
+          vim.treesitter.start(args.buf)
+        end,
+      })
+
+      -- Indentation: provided by nvim-treesitter, python keeps its own.
+      vim.api.nvim_create_autocmd('FileType', {
+        group = vim.api.nvim_create_augroup('MahdiTreesitterIndent', { clear = true }),
+        pattern = langs,
+        callback = function(args)
+          if vim.bo[args.buf].filetype == 'python' then
+            return
+          end
+          vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end,
+      })
+    end,
+  },
 }

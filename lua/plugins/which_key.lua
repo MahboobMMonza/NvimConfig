@@ -1,8 +1,11 @@
 return {
-  'folke/which-key.nvim',
-  config = true,
-  init = function()
-    vim.o.timeout, vim.o.timeoutlen = true, 300
-  end,
-  event = 'VeryLazy'
+	"folke/which-key.nvim",
+	event = "VeryLazy",
+	opts = {
+		delay = 300,
+		spec = {
+		  { '<leader>d', group = 'Debug' },
+		  { '<leader>x', group = 'Trouble/Diagnostics' },
+		},
+	},
 }

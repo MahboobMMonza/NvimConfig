@@ -4,7 +4,13 @@ local function my_on_attach(bufnr)
     return { desc = 'Nvim Tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
   end
 
-  api.config.mappings.default_on_attach(bufnr)
+  -- nvim-tree >= 1.10 exposes the default mappings through `api.map`,
+  -- older versions through `api.config.mappings`.
+  if api.map and api.map.on_attach and api.map.on_attach.default then
+    api.map.on_attach.default(bufnr)
+  elseif api.config and api.config.mappings and api.config.mappings.default_on_attach then
+    api.config.mappings.default_on_attach(bufnr)
+  end
 
   vim.keymap.set('n', 'O', '', { buffer = bufnr })
   vim.keymap.del('n', 'O', { buffer = bufnr })
@@ -42,7 +48,10 @@ return {
     end
     require('nvim-tree').setup({
       on_attach = my_on_attach,
-      sort_by = "case_sensitive",
+      -- `sort_by` was replaced by `sort.sorter` in nvim-tree 1.10+.
+      sort = {
+        sorter = 'case_sensitive',
+      },
       view = {
         adaptive_size = true,
       },

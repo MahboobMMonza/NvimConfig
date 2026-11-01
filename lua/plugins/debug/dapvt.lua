@@ -2,10 +2,9 @@ return {
   'theHamsta/nvim-dap-virtual-text',
   dependencies = {
     'mfussenegger/nvim-dap',
-    'nvim-treesitter/nvim-treesitter'
+    'nvim-treesitter/nvim-treesitter',
   },
-  build = function()
-    vim.cmd([[TSUpdate]])
+  config = function()
+    require('nvim-dap-virtual-text').setup()
   end,
-  config = true
 }

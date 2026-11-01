@@ -1,0 +1,199 @@
+local v = vim
+
+local dap_ui = require("mahdiMonza.configs.dap_ui")
+
+local function signs(name, sign, thl)
+	v.fn.sign_define(name, { text = sign, texthl = thl, linehl = "", numhl = "" })
+end
+
+local maps = function(mode, keys, func, desc)
+	if desc then
+		desc = "DAP: " .. desc
+	end
+
+	v.keymap.set(mode, keys, func, { desc = desc, noremap = true })
+end
+
+-- `dap.set_breakpoint` expects plain strings, not coroutines, so ask with the
+-- floating input and set the breakpoint once the value is known.
+local function ask(prompt, on_done)
+	dap_ui.input({ prompt = prompt }, on_done)
+end
+
+return {
+	"mfussenegger/nvim-dap",
+	config = function()
+	  local dap = require("dap")
+	  dap.set_log_level("TRACE")
+
+		-- Launch configurations
+		local configs_struct = require("mahdiMonza.configs.dap_configs")
+		dap.adapters.cppdbg = configs_struct.adapters.cppdbg
+		dap.configurations.cpp = configs_struct.configurations.c_cpp
+		dap.configurations.c = configs_struct.configurations.c_cpp
+
+		-- Python (debugpy) adapter and sane configs.
+		dap.adapters.python = function(cb, config)
+			if config.request == "attach" then
+				cb({
+					type = "server",
+					port = config.port or 5678,
+					host = config.host or "127.0.0.1",
+				})
+			else
+				cb({
+					type = "executable",
+					command = "python",
+					args = { "-m", "debugpy.adapter" },
+				})
+			end
+		end
+		dap.configurations.python = {
+			{
+				type = "python",
+				request = "launch",
+				name = "Launch file",
+				program = "${file}",
+				pythonPath = function()
+					local cwd = vim.fn.getcwd()
+					if vim.fn.executable(cwd .. "/.venv/bin/python") == 1 then
+						return cwd .. "/.venv/bin/python"
+					elseif vim.fn.executable(cwd .. "/venv/bin/python") == 1 then
+						return cwd .. "/venv/bin/python"
+					end
+					return "python"
+				end,
+				args = function()
+					local argstr = configs_struct.arginp("Args: ")
+					if type(argstr) == "function" then
+						argstr = argstr()
+					end
+					if not argstr or argstr == "" then
+						return {}
+					end
+					return vim.split(argstr, " ", { trimempty = true })
+				end,
+			},
+			{
+				type = "python",
+				request = "launch",
+				name = "Launch module",
+				module = function()
+					return vim.fn.input("Module name: ")
+				end,
+				pythonPath = "python",
+			},
+			{
+				type = "python",
+				request = "attach",
+				name = "Attach (port 5678)",
+				connect = { host = "127.0.0.1", port = 5678 },
+			},
+		}
+
+		signs("DapBreakpoint", "●", "DiagnosticSignHint")
+		signs("DapBreakpointCondition", "󰟃", "DiagnosticSignWarn")
+		signs("DapLogPoint", "󰸥", "DiagnosticSignInfo")
+		signs("DapBreakpointRejected", "󰅙", "DiagnosticSignError")
+		-- keybinds
+		maps("n", "<leader>dg", dap.continue, "DAP Forwards Continue")
+		maps("n", "<leader>dG", dap.reverse_continue, "DAP Reverse Continue")
+		maps("n", "<leader>df", dap.step_over, "DAP Step Over")
+		maps("n", "<leader>do", dap.step_out, "DAP Step Out")
+		maps("n", "<leader>di", function()
+			dap.step_into({ askForTargets = true })
+		end, "DAP Step Into")
+		maps("n", "<leader>db", dap.toggle_breakpoint, "DAP Toggle Breakpoint")
+		maps("n", "<leader>dC", dap.clear_breakpoints, "DAP Clear Breakpoints")
+		maps("n", "<leader>dS", dap.step_back, "DAP Step Back")
+		maps("n", "<leader>dB", function()
+			ask("Condition: ", function(condition)
+				if condition and condition ~= "" then
+					dap.set_breakpoint(condition)
+				end
+			end)
+		end, "DAP Set Conditional Breakpoint (input condition)")
+		maps("n", "<leader>dv", function()
+			ask("Condition: ", function(condition)
+				if not condition or condition == "" then
+					return
+				end
+				ask("Hits: ", function(hits)
+					dap.set_breakpoint(condition, (hits ~= "" and hits or nil))
+				end)
+			end)
+		end, "DAP Set Conditional Breakpoint (input condition)")
+		maps("n", "<leader>dV", function()
+			ask("Condition: ", function(condition)
+				if not condition or condition == "" then
+					return
+				end
+				ask("Hits: ", function(hits)
+					ask("Log: ", function(log)
+						dap.set_breakpoint(condition, (hits ~= "" and hits or nil), (log ~= "" and log or nil))
+					end)
+				end)
+			end)
+		end, "DAP Set Complete Conditional Breakpoint (input conditions)")
+		maps("n", "<leader>dl", function()
+			ask("Log: ", function(log)
+				if log and log ~= "" then
+					dap.set_breakpoint(nil, nil, log)
+				end
+			end)
+		end, "DAP Set Log Breakpoint (input condition)")
+		maps("n", "<leader>de", function()
+			ask("Exception Types: ", function(types)
+				if types and types ~= "" then
+					dap.set_exception_breakpoints(vim.split(types, " ", { trimempty = true }))
+				end
+			end)
+		end, "DAP Set Exception Breakpoint (input condition)")
+		maps("n", "<leader>dtt", dap.terminate, "DAP Terminate")
+		maps("n", "<leader>dr", dap.repl.open, "DAP REPL Open")
+
+		-- Additional DAP QoL mappings (Snacks-friendly / no conflicts):
+		maps("n", "<leader>dF", dap.run_to_cursor, "DAP Run to Cursor")
+		maps("n", "<leader>dW", function()
+			if dap.widgets then dap.widgets.hover() end
+		end, "DAP Widgets (hover/evaluate)")
+		maps("n", "<leader>dP", function()
+			pcall(function() require("telescope").load_extension("ui-select") end)
+			local ok, s = pcall(require, "snacks")
+			if ok and s and s.picker and s.picker.dap_configurations then
+				s.picker.dap_configurations()
+			elseif vim.ui.select then
+				vim.ui.select({ "No UI picker available" }, { prompt = "Config picker: " }, function() end)
+			end
+		end, "DAP Configurations Picker (Snacks)")
+
+		-- Load the configurations of a `.vscode/launch.json` for the current
+		-- project, so they can be picked like any other configuration.
+		vim.api.nvim_create_user_command("DapLaunchJson", function()
+			local ok, vscode = pcall(require, "dap.ext.vscode")
+			if not ok then
+				vim.notify("nvim-dap does not provide dap.ext.vscode", vim.log.levels.WARN)
+				return
+			end
+			local configs = vscode.getconfigs()
+			if vim.tbl_isempty(configs) then
+				vim.notify("No launch.json configurations found", vim.log.levels.WARN)
+				return
+			end
+			dap.configurations.launch_json = configs
+			vim.notify(("Loaded %d launch.json configurations"):format(#configs))
+		end, { desc = "Load .vscode/launch.json configurations" })
+
+vim.api.nvim_create_user_command("DapLaunchFresh", function()
+  package.loaded["mahdiMonza.configs.dap_configs"] = nil
+  local m = loadfile(vim.fn.stdpath("config") .. "/lua/mahdiMonza/configs/dap_configs.lua")()
+  local dap = require("dap")
+  dap.run(m.configurations.c_cpp[1], { new = true })
+end, { desc = "Launch DAP with a fresh configuration (avoids stale-coroutine issue)" })
+
+
+		vim.api.nvim_create_user_command("DapRunLast", function()
+			dap.run_last()
+		end, { desc = "Run the last DAP configuration" })
+	end,
+}

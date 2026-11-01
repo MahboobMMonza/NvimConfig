@@ -13,7 +13,7 @@ v.g.loaded_netrwPlugin = 1
 v.o.showmatch = true
 
 -- Tabwidths set to 4 while maintaining classical tabwidths
-v.o.ts = 8
+v.o.ts = 4
 v.o.sw = 4
 v.o.sts = 4
 v.o.expandtab = true
@@ -22,12 +22,17 @@ v.o.autoindent = true
 v.o.smartindent = true
 v.o.cindent = true
 
+v.o.laststatus = 3
+v.o.cmdheight = 1
+v.o.showcmd = true
+v.o.showmode = true
+
 -- Set highlight on search
 v.o.hlsearch = false
 v.o.incsearch = true
 
 -- Enable mouse mode
-v.o.mouse = 'a'
+v.o.mouse = "a"
 
 -- Enable break indent
 v.o.breakindent = true
@@ -41,7 +46,8 @@ v.o.smartcase = true
 
 -- Decrease update time
 v.o.updatetime = 250
-v.wo.signcolumn = 'yes'
+-- signcolumn is a window local option, set the global default
+v.o.signcolumn = "yes"
 
 -- Set scrolloff
 v.o.scrolloff = 12
@@ -50,7 +56,30 @@ v.o.scrolloff = 12
 v.o.termguicolors = true
 
 -- Better autocompletion
-v.o.completeopt = 'menuone,noselect'
+v.o.completeopt = "menuone,noselect"
 
 -- Turn off swapfile
 v.o.swapfile = false
+
+-- Window settings
+v.o.winborder = "rounded"
+v.o.winblend = 0
+
+v.o.fillchars = "eob: "
+
+-- I have custom keybinds for gr* LSP keybinds
+v.keymap.del({ "n", "x" }, "gra")
+v.keymap.del("n" , "grn")
+v.keymap.del("n" , "grx")
+v.keymap.del("n" , "grr")
+v.keymap.del("n" , "gri")
+v.keymap.del("n" , "grt")
+
+
+-- Strict-tab languages must not expand tabs
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = { "make", "go", "tsv" },
+	callback = function()
+		vim.bo.expandtab = false
+	end,
+})

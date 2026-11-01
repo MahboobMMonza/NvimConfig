@@ -1,7 +1,7 @@
 return {
   'leoluz/nvim-dap-go',
   ft = 'go',
-  dependencies = { 'williamboman/mason.nvim', 'mfussenegger/nvim-dap', },
+  dependencies = { 'mason-org/mason.nvim', 'mfussenegger/nvim-dap', },
   opts = false,
   config = function()
     require('dap-go').setup({

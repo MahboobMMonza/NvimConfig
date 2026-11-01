@@ -1,3 +1,5 @@
 plugin
 !after/plugin
 **/*.json
+graphify-out
+.DS_Store
