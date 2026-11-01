@@ -13,7 +13,10 @@ return {
 		overrides = {
 			buftype = {
 				nofile = {
-					code = { disable_background = true },
+					enabled = true,
+					code = {
+						disable_background = true,
+					},
 					render_modes = true,
 				},
 			},
