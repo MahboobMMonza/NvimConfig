@@ -9,9 +9,7 @@ return {
 			end,
 			desc = "Search Files",
 		},
-		{
-			"<leader>gf",
-			function()
+		{ "<leader>gf", function()
 				Snacks.picker.git_files()
 			end,
 			desc = "Git Files",
@@ -103,6 +101,11 @@ return {
 				list = { wo = { foldcolumn = "0" } },
 				preview = { wo = { foldcolumn = "0" } },
 				input = { wo = { foldcolumn = "0" } },
+			},
+			formatter = {
+				file = {
+					filename_first = true,
+				},
 			},
 		},
 		notifier = {

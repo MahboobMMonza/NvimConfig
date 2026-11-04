@@ -18,6 +18,7 @@ return {
 				},
 			},
 			source = true,
+			virtual_text = true,
 		},
 	},
 	dependencies = {

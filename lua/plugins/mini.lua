@@ -21,6 +21,14 @@ return {
 				suffix_next = "",
 			},
 			search_method = "cover_or_next",
+			custom_surroundings = {
+				B = {
+					output = {
+						left = "{",
+						right = "}",
+					},
+				}
+			},
 		},
 	},
 	config = function(_, opts)

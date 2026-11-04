@@ -23,8 +23,8 @@ end
 return {
 	"mfussenegger/nvim-dap",
 	config = function()
-	  local dap = require("dap")
-	  dap.set_log_level("TRACE")
+		local dap = require("dap")
+		dap.set_log_level("TRACE")
 
 		-- Launch configurations
 		local configs_struct = require("mahdiMonza.configs.dap_configs")
@@ -155,17 +155,10 @@ return {
 		-- Additional DAP QoL mappings (Snacks-friendly / no conflicts):
 		maps("n", "<leader>dF", dap.run_to_cursor, "DAP Run to Cursor")
 		maps("n", "<leader>dW", function()
-			if dap.widgets then dap.widgets.hover() end
-		end, "DAP Widgets (hover/evaluate)")
-		maps("n", "<leader>dP", function()
-			pcall(function() require("telescope").load_extension("ui-select") end)
-			local ok, s = pcall(require, "snacks")
-			if ok and s and s.picker and s.picker.dap_configurations then
-				s.picker.dap_configurations()
-			elseif vim.ui.select then
-				vim.ui.select({ "No UI picker available" }, { prompt = "Config picker: " }, function() end)
+			if dap.widgets then
+				dap.widgets.hover()
 			end
-		end, "DAP Configurations Picker (Snacks)")
+		end, "DAP Widgets (hover/evaluate)")
 
 		-- Load the configurations of a `.vscode/launch.json` for the current
 		-- project, so they can be picked like any other configuration.
@@ -183,17 +176,5 @@ return {
 			dap.configurations.launch_json = configs
 			vim.notify(("Loaded %d launch.json configurations"):format(#configs))
 		end, { desc = "Load .vscode/launch.json configurations" })
-
-vim.api.nvim_create_user_command("DapLaunchFresh", function()
-  package.loaded["mahdiMonza.configs.dap_configs"] = nil
-  local m = loadfile(vim.fn.stdpath("config") .. "/lua/mahdiMonza/configs/dap_configs.lua")()
-  local dap = require("dap")
-  dap.run(m.configurations.c_cpp[1], { new = true })
-end, { desc = "Launch DAP with a fresh configuration (avoids stale-coroutine issue)" })
-
-
-		vim.api.nvim_create_user_command("DapRunLast", function()
-			dap.run_last()
-		end, { desc = "Run the last DAP configuration" })
 	end,
 }

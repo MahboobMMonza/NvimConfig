@@ -83,6 +83,7 @@ return {
 				RenderMarkdownTableHead = { fg = "$grey" },
 				RenderMarkdownTableRow = { fg = "$grey" },
 				RenderMarkdownCheckedItem = { fg = "$green" },
+				Pmenu = { bg = "none" },
 			},
 			ending_tildes = false,
 		})

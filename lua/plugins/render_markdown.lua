@@ -17,6 +17,7 @@ return {
 					code = {
 						disable_background = true,
 					},
+					anti_conceal = { enabled = false },
 					render_modes = true,
 				},
 			},
