@@ -23,5 +23,3 @@ autocmd("VimLeave", {
 		vim.o.guicursor = "a:ver25-blinkwait400-blinkon1200-blinkoff1200"
 	end,
 })
-
--- autocmd VimLeave * call system('printf "\e[5 q" > $TTY')
