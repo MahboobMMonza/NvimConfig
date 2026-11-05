@@ -43,19 +43,18 @@ local function progress_chunks(p)
     if p.percentage then
       return {
         { (" "):rep(width), "FormatProgressDone" },
-        { " ", "LspProgressTitle" },
-        { msg_line, "LspProgressTitle" },
+        { " " .. msg_line, "LspProgressTitle" },
         { "(100%) ", "LspProgressTitle" },
         { " ", "LspProgressSpinner" },
         { (p.title or "") .. " ", "LspProgressTitle" },
-        { ((p.client or "lsp") .. " "), "LspProgressClient" },
+        { (p.client or "lsp"), "LspProgressClient" },
       }
     else
       return {
         { msg_line, "LspProgressTitle" },
         { " ", "LspProgressSpinner" },
         { (p.title or "") .. " ", "LspProgressTitle" },
-        { ((p.client or "lsp") .. " "), "LspProgressClient" },
+        { (p.client or "lsp"), "LspProgressClient" },
       }
     end
   end
@@ -63,8 +62,8 @@ local function progress_chunks(p)
   if p.percentage then
     chunks[#chunks + 1] = { (" "):rep(done), "FormatProgressDone" }
     chunks[#chunks + 1] =
-      { (" "):rep(width - done) .. " ", "FormatProgressTodo" }
-    chunks[#chunks + 1] = { msg_line, "LspProgressTitle" }
+      { (" "):rep(width - done), "FormatProgressTodo" }
+    chunks[#chunks + 1] = { " " .. msg_line, "LspProgressTitle" }
     chunks[#chunks + 1] =
       { ("(%d%%) "):format(p.percentage), "LspProgressTitle" }
   else
@@ -72,7 +71,7 @@ local function progress_chunks(p)
   end
   chunks[#chunks + 1] = { spin() .. " ", "LspProgressSpinner" }
   chunks[#chunks + 1] = { (p.title or "") .. " ", "LspProgressTitle" }
-  chunks[#chunks + 1] = { (p.client or "lsp") .. " ", "LspProgressClient" }
+  chunks[#chunks + 1] = { (p.client or "lsp"), "LspProgressClient" }
   return chunks
 end
 
@@ -90,6 +89,10 @@ local last_chunks = {}
 
 local function render(id)
   local p = state[id]
+  if not p then
+    last_chunks[id] = nil
+    return
+  end
   local lines = progress_chunks(p)
   if vim.deep_equal(lines, last_chunks[id]) then
     return
@@ -99,7 +102,10 @@ local function render(id)
     strip_msg_border()
     border_stripped = true
   end
-  lines[#lines + 1] = { " " }
+  -- lines[#lines + 1] = { "\u{200B}", "Normal" }
+  if #lines == 0 then
+    return
+  end
 
   if p.kind == "end" then
     vim.api.nvim_echo(lines, false, {
@@ -122,7 +128,9 @@ local function render(id)
   end
 end
 
+local progress_augroup = vim.api.nvim_create_augroup("lsp_progress", { clear = true})
 vim.api.nvim_create_autocmd("LspProgress", {
+  group = progress_augroup,
   callback = function(ev)
     local d = ev.data
     local coarse = (d.params.value.title or "progress"):match("^(S+ %S+)")
@@ -136,6 +144,12 @@ vim.api.nvim_create_autocmd("LspProgress", {
 		end ]]
     if d.params.value.kind == "end" then
       state[id].percentage = 100
+      local ids = vim.tbl_keys(state)
+      for _, s in ipairs(ids) do
+        render(s)
+      end
+      last_chunks[id] = nil
+      state[id] = nil
       vim.defer_fn(function()
         state[id] = nil
       end, 100)
@@ -152,7 +166,8 @@ vim.api.nvim_create_autocmd("LspProgress", {
           if not timer then
             return
           end
-          for s in pairs(state) do
+          local ids = vim.tbl_keys(state)
+          for _, s in ipairs(ids) do
             render(s)
           end
           if vim.tbl_isempty(state) then
