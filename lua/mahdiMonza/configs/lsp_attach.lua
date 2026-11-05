@@ -65,6 +65,16 @@ vim.api.nvim_create_autocmd("LspAttach", {
 	end,
 })
 
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "markdown",
+	callback = function(args)
+		if vim.bo[args.buf].buftype == "nofile" then
+			vim.diagnostic.enable(false, { bufnr = args.buf })
+		end
+	end
+
+})
+
 M.maps = mapper.maps
 
 return M
