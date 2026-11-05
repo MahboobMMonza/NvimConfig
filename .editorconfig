@@ -6,7 +6,7 @@ tab_width = 4
 quote_style = none
 
 # Line Length
-max_line_length = 120
+max_line_length = 80
 
 # Newlines and Whitespace
 insert_final_newline = true
