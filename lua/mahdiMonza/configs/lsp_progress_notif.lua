@@ -34,14 +34,14 @@ local function progress_chunks(p)
 				{ "(100%) ", "LspProgressTitle" },
 				{ " ", "LspProgressSpinner" },
 				{ (p.title or "") .. " ", "LspProgressTitle" },
-				{ (p.client .. " "), "LspProgressClient" },
+				{ ((p.client or "lsp") .. " "), "LspProgressClient" },
 			}
 		else
 			return {
 				{ msg_line, "LspProgressTitle" },
 				{ " ", "LspProgressSpinner" },
 				{ (p.title or "") .. " ", "LspProgressTitle" },
-				{ (p.client .. " "), "LspProgressClient" },
+				{ ((p.client or "lsp") .. " "), "LspProgressClient" },
 			}
 		end
 	end
@@ -56,7 +56,7 @@ local function progress_chunks(p)
 	end
 	chunks[#chunks + 1] = { spin() .. " ", "LspProgressSpinner" }
 	chunks[#chunks + 1] = { (p.title or "") .. " ", "LspProgressTitle" }
-	chunks[#chunks + 1] = { p.client .. " ", "LspProgressClient" }
+	chunks[#chunks + 1] = { (p.client or "lsp") .. " ", "LspProgressClient" }
 	return chunks
 end
 
@@ -125,10 +125,12 @@ vim.api.nvim_create_autocmd("LspProgress", {
 		end
 		if not timer then
 			timer = vim.uv.new_timer()
+            if not timer then return end
 			timer:start(
 				0,
 				80,
 				vim.schedule_wrap(function()
+					if not timer then return end
 					for s in pairs(state) do
 						render(s)
 					end
