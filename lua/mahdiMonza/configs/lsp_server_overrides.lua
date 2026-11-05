@@ -74,7 +74,7 @@ return {
 			"mpls",
 			"--no-auto",
 			"--theme",
-			"tokyonight",
+			"ayu-dark",
 			"--enable-emoji",
 			"--enable-footnotes",
 		},
