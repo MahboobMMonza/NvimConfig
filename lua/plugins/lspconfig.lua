@@ -6,28 +6,28 @@
 local lsp_cfg = require("mahdiMonza.configs.lsp")
 
 return {
-	"neovim/nvim-lspconfig",
-	opts = {
-		diagnostics = {
-			signs = {
-				text = {
-					[vim.diagnostic.severity.ERROR] = "",
-					[vim.diagnostic.severity.WARN] = "",
-					[vim.diagnostic.severity.HINT] = "",
-					[vim.diagnostic.severity.INFO] = "",
-				},
-			},
-			source = true,
-			virtual_text = true,
-		},
-	},
-	dependencies = {
-		-- Automatically install LSPs to stdpath for neovim
-		"mason-org/mason.nvim",
-		"mason-org/mason-lspconfig.nvim",
-		"WhoIsSethDaniel/mason-tool-installer.nvim",
-		"saghen/blink.cmp",
-		"p00f/clangd_extensions.nvim",
-	},
-	config = lsp_cfg.setup,
+  "neovim/nvim-lspconfig",
+  opts = {
+    diagnostics = {
+      signs = {
+        text = {
+          [vim.diagnostic.severity.ERROR] = "",
+          [vim.diagnostic.severity.WARN] = "",
+          [vim.diagnostic.severity.HINT] = "",
+          [vim.diagnostic.severity.INFO] = "",
+        },
+      },
+      source = true,
+      virtual_text = true,
+    },
+  },
+  dependencies = {
+    -- Automatically install LSPs to stdpath for neovim
+    "mason-org/mason.nvim",
+    "mason-org/mason-lspconfig.nvim",
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    "saghen/blink.cmp",
+    "p00f/clangd_extensions.nvim",
+  },
+  config = lsp_cfg.setup,
 }

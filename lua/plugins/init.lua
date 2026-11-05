@@ -1,10 +1,10 @@
 return {
-	-- Git related plugins
-	"tpope/vim-rhubarb",
-	"tpope/vim-abolish",
+  -- Git related plugins
+  "tpope/vim-rhubarb",
+  "tpope/vim-abolish",
 
-	"tpope/vim-sleuth", -- Detect tabstop and shiftwidth automatically
+  "tpope/vim-sleuth", -- Detect tabstop and shiftwidth automatically
 
-	{ import = "plugins.debug" },
-	{ import = "plugins.git" },
+  { import = "plugins.debug" },
+  { import = "plugins.git" },
 }

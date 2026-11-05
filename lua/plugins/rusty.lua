@@ -15,7 +15,7 @@ return {
           on_attach = function(client, bufnr)
             lsat.on_attach.default(client, bufnr)
             vim.keymap.set("n", "K", function()
-              vim.cmd.RustLsp { "hover", "actions" }
+              vim.cmd.RustLsp({ "hover", "actions" })
             end, { buffer = bufnr, desc = "Rust: Hover Actions" })
             vim.keymap.set("n", "<leader>ca", function()
               vim.cmd.RustLsp("codeAction")

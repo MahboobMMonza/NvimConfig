@@ -55,7 +55,7 @@ return {
     }
 
     -- SyncTeX / qf
-    vim.g.vimtex_qf_mode = 0  -- use quickfix automatically
+    vim.g.vimtex_qf_mode = 0 -- use quickfix automatically
     vim.g.vimtex_quickfix_open_on_warning = 0
     vim.g.vimtex_view_automatic = 1
 

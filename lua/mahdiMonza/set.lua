@@ -69,17 +69,16 @@ v.o.fillchars = "eob: "
 
 -- I have custom keybinds for gr* LSP keybinds
 v.keymap.del({ "n", "x" }, "gra")
-v.keymap.del("n" , "grn")
-v.keymap.del("n" , "grx")
-v.keymap.del("n" , "grr")
-v.keymap.del("n" , "gri")
-v.keymap.del("n" , "grt")
-
+v.keymap.del("n", "grn")
+v.keymap.del("n", "grx")
+v.keymap.del("n", "grr")
+v.keymap.del("n", "gri")
+v.keymap.del("n", "grt")
 
 -- Strict-tab languages must not expand tabs
 vim.api.nvim_create_autocmd("FileType", {
-	pattern = { "make", "go", "tsv" },
-	callback = function()
-		vim.bo.expandtab = false
-	end,
+  pattern = { "make", "go", "tsv" },
+  callback = function()
+    vim.bo.expandtab = false
+  end,
 })

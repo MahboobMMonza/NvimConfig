@@ -2,11 +2,11 @@ local v = vim
 v.g.mapleader = " "
 
 local map = function(modes, motion, operation, opts)
-	v.keymap.set(modes, motion, operation, opts)
+  v.keymap.set(modes, motion, operation, opts)
 end
 
 map("n", "<leader>n", function()
-	v.cmd("enew")
+  v.cmd("enew")
 end, { desc = "New file" })
 v.g.maplocalleader = ","
 
@@ -15,16 +15,40 @@ map("n", "<leader>zz", v.cmd.w)
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
-map({ "n", "v" }, "<Space>", "<Nop>", { silent = true, noremap = true, desc = "Set space to be <Nop> for leader key" })
-map({ "n", "v" }, "Y", "yg$", { noremap = true, desc = "Yank from cursor to end of line" })
+map(
+  { "n", "v" },
+  "<Space>",
+  "<Nop>",
+  {
+    silent = true,
+    noremap = true,
+    desc = "Set space to be <Nop> for leader key",
+  }
+)
+map(
+  { "n", "v" },
+  "Y",
+  "yg$",
+  { noremap = true, desc = "Yank from cursor to end of line" }
+)
 
 -- Remap for dealing with word wrap
 map("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 map("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- Remap to visually move selected text up and down and format it correctly
-map("v", "J", ":m '>+1<CR>gv=gv", { desc = "Move the current selection down one line", silent = true })
-map("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move the current selection up one line", silent = true })
+map(
+  "v",
+  "J",
+  ":m '>+1<CR>gv=gv",
+  { desc = "Move the current selection down one line", silent = true }
+)
+map(
+  "v",
+  "K",
+  ":m '<-2<CR>gv=gv",
+  { desc = "Move the current selection up one line", silent = true }
+)
 
 -- Don't move cursor when joining lines
 map("n", "J", "mzJ`z")
@@ -56,7 +80,12 @@ map({ "n", "v" }, "<leader>Sps", '"+P')
 map("v", ">", ">gv^")
 map("v", "<", "<gv^")
 
-map("v", ".", ":normal .<CR>", { silent = true, desc = "Apply previous command to selected text" })
+map(
+  "v",
+  ".",
+  ":normal .<CR>",
+  { silent = true, desc = "Apply previous command to selected text" }
+)
 
 -- Navigate buffers
 map("n", "]b", "<CMD>bn<CR>", { desc = "Next buffer" })
@@ -64,9 +93,14 @@ map("n", "[b", "<CMD>bp<CR>", { desc = "Previous buffer" })
 
 -- Diagnostic keymaps
 map("n", "<leader>e", function()
-	local fl_bufnr = vim.diagnostic.open_float({ scope = "cursor" })
-	if fl_bufnr then
-		vim.bo[fl_bufnr].filetype = "markdown"
-	end
+  local fl_bufnr = vim.diagnostic.open_float({ scope = "cursor" })
+  if fl_bufnr then
+    vim.bo[fl_bufnr].filetype = "markdown"
+  end
 end, { desc = "Open Diagnostic Message in Floating Window" })
-map("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Add Current Diagnostic Message to Location List" })
+map(
+  "n",
+  "<leader>q",
+  vim.diagnostic.setloclist,
+  { desc = "Add Current Diagnostic Message to Location List" }
+)

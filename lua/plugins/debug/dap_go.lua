@@ -1,16 +1,16 @@
 return {
-  'leoluz/nvim-dap-go',
-  ft = 'go',
-  dependencies = { 'mason-org/mason.nvim', 'mfussenegger/nvim-dap', },
+  "leoluz/nvim-dap-go",
+  ft = "go",
+  dependencies = { "mason-org/mason.nvim", "mfussenegger/nvim-dap" },
   opts = false,
   config = function()
-    require('dap-go').setup({
+    require("dap-go").setup({
       delve = {
-        path = vim.fn.exepath('dlv'),
+        path = vim.fn.exepath("dlv"),
         initialize_timeout_sec = 20,
-        port = '${port}',
+        port = "${port}",
         args = {},
       },
     })
-  end
+  end,
 }

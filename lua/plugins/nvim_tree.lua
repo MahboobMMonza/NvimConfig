@@ -1,43 +1,53 @@
 local function my_on_attach(bufnr)
-  local api = require('nvim-tree.api')
+  local api = require("nvim-tree.api")
   local function opts(desc)
-    return { desc = 'Nvim Tree: ' .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+    return {
+      desc = "Nvim Tree: " .. desc,
+      buffer = bufnr,
+      noremap = true,
+      silent = true,
+      nowait = true,
+    }
   end
 
   -- nvim-tree >= 1.10 exposes the default mappings through `api.map`,
   -- older versions through `api.config.mappings`.
   if api.map and api.map.on_attach and api.map.on_attach.default then
     api.map.on_attach.default(bufnr)
-  elseif api.config and api.config.mappings and api.config.mappings.default_on_attach then
+  elseif
+    api.config
+    and api.config.mappings
+    and api.config.mappings.default_on_attach
+  then
     api.config.mappings.default_on_attach(bufnr)
   end
 
-  vim.keymap.set('n', 'O', '', { buffer = bufnr })
-  vim.keymap.del('n', 'O', { buffer = bufnr })
-  vim.keymap.set('n', '<2-RightMouse>', '', { buffer = bufnr })
-  vim.keymap.del('n', '<2-RightMouse>', { buffer = bufnr })
-  vim.keymap.set('n', 'D', '', { buffer = bufnr })
-  vim.keymap.del('n', 'D', { buffer = bufnr })
-  vim.keymap.set('n', 'E', '', { buffer = bufnr })
-  vim.keymap.del('n', 'E', { buffer = bufnr })
+  vim.keymap.set("n", "O", "", { buffer = bufnr })
+  vim.keymap.del("n", "O", { buffer = bufnr })
+  vim.keymap.set("n", "<2-RightMouse>", "", { buffer = bufnr })
+  vim.keymap.del("n", "<2-RightMouse>", { buffer = bufnr })
+  vim.keymap.set("n", "D", "", { buffer = bufnr })
+  vim.keymap.del("n", "D", { buffer = bufnr })
+  vim.keymap.set("n", "E", "", { buffer = bufnr })
+  vim.keymap.del("n", "E", { buffer = bufnr })
 
-  vim.keymap.set('n', 'A', api.tree.expand_all, opts('Expand All'))
-  vim.keymap.set('n', '?', api.tree.toggle_help, opts('Help'))
-  vim.keymap.set('n', 'C', api.tree.change_root_to_node, opts('CD'))
-  vim.keymap.set('n', 'P', function()
+  vim.keymap.set("n", "A", api.tree.expand_all, opts("Expand All"))
+  vim.keymap.set("n", "?", api.tree.toggle_help, opts("Help"))
+  vim.keymap.set("n", "C", api.tree.change_root_to_node, opts("CD"))
+  vim.keymap.set("n", "P", function()
     local node = api.tree.get_node_under_cursor()
     print(node.absolute_path)
-  end, opts('Print Node Path'))
+  end, opts("Print Node Path"))
 
-  vim.keymap.set('n', '<leader>z', api.node.run.system, opts('Run System'))
+  vim.keymap.set("n", "<leader>z", api.node.run.system, opts("Run System"))
 end
 
 return {
-  'nvim-tree/nvim-tree.lua',
+  "nvim-tree/nvim-tree.lua",
   dependencies = {
-    'nvim-tree/nvim-web-devicons',
+    "nvim-tree/nvim-web-devicons",
   },
-  version = '*',
+  version = "*",
   config = function()
     local v = vim
     local remap = function(modes, motion, operation, opts)
@@ -46,11 +56,11 @@ return {
       end
       v.keymap.set(modes, motion, operation, opts)
     end
-    require('nvim-tree').setup({
+    require("nvim-tree").setup({
       on_attach = my_on_attach,
       -- `sort_by` was replaced by `sort.sorter` in nvim-tree 1.10+.
       sort = {
-        sorter = 'case_sensitive',
+        sorter = "case_sensitive",
       },
       view = {
         adaptive_size = true,
@@ -63,9 +73,24 @@ return {
       },
     })
     -- Keymap to open nvim-tree easily
-    remap('n', '<leader>pf', ':NvimTreeFocus<CR>', { desc = 'Nvim Tree Focus' })
-    remap('n', '<leader>pvt', ':NvimTreeToggle<CR>', { desc = 'Nvim Tree Toogle' })
-    remap('n', '<leader>pvf', ':NvimTreeFindFile<CR>', { desc = 'Nvim Tree Find File' })
-    remap('n', '<leader>pvc', ':NvimTreeCollapse<CR>', { desc = 'Nvim Tree Collapse All' })
-  end
+    remap("n", "<leader>pf", ":NvimTreeFocus<CR>", { desc = "Nvim Tree Focus" })
+    remap(
+      "n",
+      "<leader>pvt",
+      ":NvimTreeToggle<CR>",
+      { desc = "Nvim Tree Toogle" }
+    )
+    remap(
+      "n",
+      "<leader>pvf",
+      ":NvimTreeFindFile<CR>",
+      { desc = "Nvim Tree Find File" }
+    )
+    remap(
+      "n",
+      "<leader>pvc",
+      ":NvimTreeCollapse<CR>",
+      { desc = "Nvim Tree Collapse All" }
+    )
+  end,
 }

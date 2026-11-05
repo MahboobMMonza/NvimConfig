@@ -5,11 +5,11 @@ pcall(vim.fn.serverstart, "/tmp/nvim.pipe")
 require("mahdiMonza")
 local ui = require("vim._core.ui2")
 ui.enable({
-	enable = true,
-	msg = {
-		target = "cmd",
-		targets = {
-			progress = "msg",
-		},
-	},
+  enable = true,
+  msg = {
+    target = "cmd",
+    targets = {
+      progress = "msg",
+    },
+  },
 })

@@ -3,5 +3,5 @@ return {
   opts = {
     color_icons = true,
     default = true,
-  }
+  },
 }
