@@ -72,7 +72,7 @@ local function progress_chunks(p)
   local width, done = 20, math.floor(((p.percentage or 0) / 100) * 20)
   local msg_line = p.message and p.message or ""
   if p.kind == "end" then
-    if p.percentage then
+    if p.percentage ~= nil then
       return {
         { (" "):rep(width), "FormatProgressDone" },
         { " " .. msg_line, "LspProgressTitle" },
@@ -91,7 +91,7 @@ local function progress_chunks(p)
     end
   end
   local chunks = {}
-  if p.percentage then
+  if p.percentage ~= nil then
     local show_msg = #msg_line > 20
     local bar_text = show_msg and (" "):rep(width) or (" "):rep(math.max(0, width - #msg_line)) .. msg_line
     local done_text = bar_text:sub(1, done)
