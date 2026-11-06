@@ -1,13 +1,14 @@
 local search_hl = vim.api.nvim_get_hl(0, { name = "Search", link = false })
-local cursor_hl = vim.api.nvim_get_hl(0, { name = "CursorLine", link = false })
+-- local conceal_hl = vim.api.nvim_get_hl(0, { name = "Conceal", link = false })
 
 local fill_hl = { fg = search_hl.fg, bg = search_hl.bg }
-local empty_hl = { fg = cursor_hl.fg, bg = cursor_hl.bg }
+-- local empty_hl = { fg = conceal_hl.fg, bg = conceal_hl.bg }
 
-vim.api.nvim_set_hl(0, "FormatProgressDone", fill_hl)
-vim.api.nvim_set_hl(0, "FormatProgressTodo", empty_hl)
+vim.api.nvim_set_hl(0, "LspProgressDone", fill_hl)
+-- vim.api.nvim_set_hl(0, "LspProgressTodo", empty_hl)
 
 local linked_hls = {
+  LspProgressTodo = "Conceal",
   LspProgressSpinner = "Constant", -- spinner fg
   LspProgressTitle = "NonText", -- title fg
   LspProgressClient = "Title", -- client name fg
@@ -74,7 +75,7 @@ local function progress_chunks(p)
   if p.kind == "end" then
     if p.percentage ~= nil then
       return {
-        { (" "):rep(width), "FormatProgressDone" },
+        { (" "):rep(width), "LspProgressDone" },
         { " " .. msg_line, "LspProgressTitle" },
         { "(100%) ", "LspProgressTitle" },
         { " ", "LspProgressSpinner" },
@@ -97,8 +98,8 @@ local function progress_chunks(p)
     local done_text = bar_text:sub(1, done)
     local todo_text = bar_text:sub(done + 1)
     local pct_pad = p.percentage < 10 and 2 or p.percentage < 100 and 1 or 0
-    chunks[#chunks + 1] = { done_text, "FormatProgressDone" }
-    chunks[#chunks + 1] = { todo_text, "FormatProgressTodo" }
+    chunks[#chunks + 1] = { done_text, "LspProgressDone" }
+    chunks[#chunks + 1] = { todo_text, "LspProgressTodo" }
     if show_msg then
       chunks[#chunks + 1] = { " " .. msg_line .. " ", "LspProgressTitle" }
     else
