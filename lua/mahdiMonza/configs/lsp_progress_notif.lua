@@ -61,8 +61,7 @@ local function progress_chunks(p)
   local chunks = {}
   if p.percentage then
     chunks[#chunks + 1] = { (" "):rep(done), "FormatProgressDone" }
-    chunks[#chunks + 1] =
-      { (" "):rep(width - done), "FormatProgressTodo" }
+    chunks[#chunks + 1] = { (" "):rep(width - done), "FormatProgressTodo" }
     chunks[#chunks + 1] = { " " .. msg_line, "LspProgressTitle" }
     chunks[#chunks + 1] =
       { ("(%d%%) "):format(p.percentage), "LspProgressTitle" }
@@ -128,10 +127,16 @@ local function render(id)
   end
 end
 
-local progress_augroup = vim.api.nvim_create_augroup("lsp_progress", { clear = true})
+local progress_augroup =
+  vim.api.nvim_create_augroup("lsp_progress", { clear = true })
 vim.api.nvim_create_autocmd("LspProgress", {
   group = progress_augroup,
   callback = function(ev)
+    vim.fn.writefile(
+      { vim.inspect(ev) },
+      vim.fn.stdpath("log") .. "/lsp_progress.log",
+      "a"
+    )
     local d = ev.data
     local coarse = (d.params.value.title or "progress"):match("^(S+ %S+)")
     local id = tostring(d.client_id) .. ":" .. (coarse or "progress")
