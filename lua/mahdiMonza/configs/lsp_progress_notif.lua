@@ -36,6 +36,38 @@ local function spin()
   local frame = math.floor(ms / spinner.interval) % #spinner.frames
   return spinner.frames[frame + 1]
 end
+
+local function trim_progress_text(text)
+  if type(text) ~= "string" then return nil end
+  text = text:gsub("^%s+", ""):gsub("%s+$", "")
+  if text == "" then return nil end
+  return text
+end
+
+local function progress_percent_from_text(text)
+  text = trim_progress_text(text)
+  if not text then return nil end
+  local numerator, denominator = text:match("(%d+)%s*/%s*(%d+)")
+  if not numerator or not denominator then return nil end
+  numerator = tonumber(numerator)
+  denominator = tonumber(denominator)
+  if type(numerator) ~= "number" or type(denominator) ~= "number" or denominator == 0 then
+    return nil
+  end
+  return math.floor((numerator / denominator) * 100)
+end
+
+local function progress_report_percent(value)
+  if type(value) ~= "table" then return nil end
+  if type(value.percentage) == "number" then return value.percentage end
+  if type(value.percentage) == "string" then
+    local n = tonumber(value.percentage)
+    if n then return n end
+  end
+  return progress_percent_from_text(value.message)
+    or progress_percent_from_text(value.title)
+end
+
 local function progress_chunks(p)
   local width, done = 20, math.floor(((p.percentage or 0) / 100) * 20)
   local msg_line = p.message and p.message .. " " or ""
@@ -92,7 +124,28 @@ local function render(id)
     last_chunks[id] = nil
     return
   end
-  local lines = progress_chunks(p)
+  local view = p
+  if type(p.children) == "table" and next(p.children) then
+    local selected
+    local highest = -1
+    for _, report in pairs(p.children) do
+      local pct = (type(report) == "table" and report.percentage or 0) or 0
+      if pct >= highest then
+        selected = report
+        highest = pct
+      end
+    end
+    if type(selected) == "table" then
+      view = {
+        kind = selected.kind or p.kind or "report",
+        title = p.title,
+        client = p.client,
+        percentage = selected.percentage or p.percentage or 0,
+        message = selected.message,
+      }
+    end
+  end
+  local lines = progress_chunks(view)
   if vim.deep_equal(lines, last_chunks[id]) then
     return
   end
@@ -133,31 +186,46 @@ vim.api.nvim_create_autocmd("LspProgress", {
   group = progress_augroup,
   callback = function(ev)
     vim.fn.writefile(
-      { vim.inspect(ev) },
+      vim.split(vim.inspect(ev), "\n"),
       vim.fn.stdpath("log") .. "/lsp_progress.log",
       "a"
     )
     local d = ev.data
-    local coarse = (d.params.value.title or "progress"):match("^(S+ %S+)")
-    local id = tostring(d.client_id) .. ":" .. (coarse or "progress")
-    state[id] = vim.tbl_deep_extend("force", state[id] or {
+    if type(d) ~= "table" or type(d.params) ~= "table" or type(d.params.value) ~= "table" then
+      return
+    end
+    local value = d.params.value
+    local parent_key = tostring(d.client_id or "?")
+      .. ":" .. ((value.title or "progress"):gsub("^%s+", ""):gsub("%s+$", ""))
+    state[parent_key] = state[parent_key] or {
       client = (vim.lsp.get_client_by_id(d.client_id) or {}).name
-        or ("lsp-" .. d.client_id),
-    }, d.params.value)
+        or ("lsp-" .. tostring(d.client_id)),
+      title = value.title,
+      children = {},
+    }
+
+    local token = tostring(d.params.token or "default")
+    state[parent_key].children[token] = vim.tbl_deep_extend("force", state[parent_key].children[token] or {}, value)
+    local reported = progress_report_percent(value)
+    if reported ~= nil then
+      state[parent_key].percentage = math.max(
+        state[parent_key].percentage or 0,
+        reported
+      )
+    end
     --[[ if d.params.value.kind ~= "end" and state[id].percentage then
 			state[id].percentage = math.min(state[id].percentage, 99)
 		end ]]
-    if d.params.value.kind == "end" then
-      state[id].percentage = 100
-      local ids = vim.tbl_keys(state)
-      for _, s in ipairs(ids) do
-        render(s)
+    if value.kind == "end" then
+      state[parent_key].children[token] = nil
+      state[parent_key].percentage = 100
+      state[parent_key].kind = "end"
+      if vim.tbl_isempty(state[parent_key].children) then
+        vim.defer_fn(function()
+          state[parent_key] = nil
+        end, 100)
       end
-      last_chunks[id] = nil
-      state[id] = nil
-      vim.defer_fn(function()
-        state[id] = nil
-      end, 100)
+      last_chunks[parent_key] = nil
     end
     if not timer then
       timer = vim.uv.new_timer()
