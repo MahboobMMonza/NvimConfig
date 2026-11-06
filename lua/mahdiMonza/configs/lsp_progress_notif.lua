@@ -70,7 +70,7 @@ end
 
 local function progress_chunks(p)
   local width, done = 20, math.floor(((p.percentage or 0) / 100) * 20)
-  local msg_line = p.message and p.message .. " " or ""
+  local msg_line = p.message and p.message or ""
   if p.kind == "end" then
     if p.percentage then
       return {
@@ -92,11 +92,20 @@ local function progress_chunks(p)
   end
   local chunks = {}
   if p.percentage then
-    chunks[#chunks + 1] = { (" "):rep(done), "FormatProgressDone" }
-    chunks[#chunks + 1] = { (" "):rep(width - done), "FormatProgressTodo" }
-    chunks[#chunks + 1] = { " " .. msg_line, "LspProgressTitle" }
+    local show_msg = #msg_line > 20
+    local bar_text = show_msg and (" "):rep(width) or (" "):rep(math.max(0, width - #msg_line)) .. msg_line
+    local done_text = bar_text:sub(1, done)
+    local todo_text = bar_text:sub(done + 1)
+    local pct_pad = p.percentage < 10 and 2 or p.percentage < 100 and 1 or 0
+    chunks[#chunks + 1] = { done_text, "FormatProgressDone" }
+    chunks[#chunks + 1] = { todo_text, "FormatProgressTodo" }
+    if show_msg then
+      chunks[#chunks + 1] = { " " .. msg_line .. " ", "LspProgressTitle" }
+    else
+      chunks[#chunks + 1] = { " ", "LspProgressTitle" }
+    end
     chunks[#chunks + 1] =
-      { ("(%d%%) "):format(p.percentage), "LspProgressTitle" }
+      { (" "):rep(pct_pad) .. ("(%d%%) "):format(p.percentage), "LspProgressTitle" }
   else
     chunks[#chunks + 1] = { msg_line, "LspProgressTitle" }
   end
@@ -140,7 +149,7 @@ local function render(id)
         kind = selected.kind or p.kind or "report",
         title = p.title,
         client = p.client,
-        percentage = selected.percentage or p.percentage or 0,
+        percentage = selected.percentage or p.percentage,
         message = selected.message,
       }
     end
@@ -154,7 +163,6 @@ local function render(id)
     strip_msg_border()
     border_stripped = true
   end
-  -- lines[#lines + 1] = { "\u{200B}", "Normal" }
   if #lines == 0 then
     return
   end
@@ -223,7 +231,7 @@ vim.api.nvim_create_autocmd("LspProgress", {
       if vim.tbl_isempty(state[parent_key].children) then
         vim.defer_fn(function()
           state[parent_key] = nil
-        end, 100)
+        end, 80)
       end
       last_chunks[parent_key] = nil
     end
