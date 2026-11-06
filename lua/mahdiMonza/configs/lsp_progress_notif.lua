@@ -84,7 +84,7 @@ local function progress_chunks(p)
       }
     else
       return {
-        { msg_line, "LspProgressTitle" },
+        { msg_line .. " ", "LspProgressTitle" },
         { " ", "LspProgressSpinner" },
         { (p.title or "") .. " ", "LspProgressTitle" },
         { (p.client or "lsp"), "LspProgressClient" },
@@ -108,7 +108,7 @@ local function progress_chunks(p)
     chunks[#chunks + 1] =
       { (" "):rep(pct_pad) .. ("(%d%%) "):format(p.percentage), "LspProgressTitle" }
   else
-    chunks[#chunks + 1] = { msg_line, "LspProgressTitle" }
+    chunks[#chunks + 1] = { msg_line .. " ", "LspProgressTitle" }
   end
   chunks[#chunks + 1] = { spin() .. " ", "LspProgressSpinner" }
   chunks[#chunks + 1] = { (p.title or "") .. " ", "LspProgressTitle" }
@@ -227,8 +227,10 @@ vim.api.nvim_create_autocmd("LspProgress", {
 		end ]]
     if value.kind == "end" then
       state[parent_key].children[token] = nil
-      state[parent_key].percentage = 100
       state[parent_key].kind = "end"
+      if state[parent_key].percentage ~= nil then
+        state[parent_key].percentage = 100
+      end
       if vim.tbl_isempty(state[parent_key].children) then
         vim.defer_fn(function()
           state[parent_key] = nil
