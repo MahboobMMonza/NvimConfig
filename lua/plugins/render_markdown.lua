@@ -8,7 +8,6 @@ return {
     restart_highlighter = true,
     completions = {
       lsp = { enabled = true },
-      blink = { enabled = true },
     },
     overrides = {
       buftype = {
@@ -16,6 +15,9 @@ return {
           enabled = true,
           code = {
             disable_background = true,
+            language_border = ' ',
+            language_left = '█',
+            language_right = '█',
           },
           anti_conceal = { enabled = false },
           render_modes = true,
