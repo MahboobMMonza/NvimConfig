@@ -1,11 +1,7 @@
 local search_hl = vim.api.nvim_get_hl(0, { name = "Search", link = false })
--- local conceal_hl = vim.api.nvim_get_hl(0, { name = "Conceal", link = false })
-
 local fill_hl = { fg = search_hl.fg, bg = search_hl.bg }
--- local empty_hl = { fg = conceal_hl.fg, bg = conceal_hl.bg }
 
 vim.api.nvim_set_hl(0, "LspProgressDone", fill_hl)
--- vim.api.nvim_set_hl(0, "LspProgressTodo", empty_hl)
 
 local linked_hls = {
   LspProgressTodo = "Conceal",
@@ -39,31 +35,49 @@ local function spin()
 end
 
 local function trim_progress_text(text)
-  if type(text) ~= "string" then return nil end
+  if type(text) ~= "string" then
+    return nil
+  end
   text = text:gsub("^%s+", ""):gsub("%s+$", "")
-  if text == "" then return nil end
+  if text == "" then
+    return nil
+  end
   return text
 end
 
 local function progress_percent_from_text(text)
   text = trim_progress_text(text)
-  if not text then return nil end
+  if not text then
+    return nil
+  end
   local numerator, denominator = text:match("(%d+)%s*/%s*(%d+)")
-  if not numerator or not denominator then return nil end
+  if not numerator or not denominator then
+    return nil
+  end
   numerator = tonumber(numerator)
   denominator = tonumber(denominator)
-  if type(numerator) ~= "number" or type(denominator) ~= "number" or denominator == 0 then
+  if
+    type(numerator) ~= "number"
+    or type(denominator) ~= "number"
+    or denominator == 0
+  then
     return nil
   end
   return math.floor((numerator / denominator) * 100)
 end
 
 local function progress_report_percent(value)
-  if type(value) ~= "table" then return nil end
-  if type(value.percentage) == "number" then return value.percentage end
+  if type(value) ~= "table" then
+    return nil
+  end
+  if type(value.percentage) == "number" then
+    return value.percentage
+  end
   if type(value.percentage) == "string" then
     local n = tonumber(value.percentage)
-    if n then return n end
+    if n then
+      return n
+    end
   end
   return progress_percent_from_text(value.message)
     or progress_percent_from_text(value.title)
@@ -94,7 +108,8 @@ local function progress_chunks(p)
   local chunks = {}
   if p.percentage ~= nil then
     local show_msg = #msg_line > 20
-    local bar_text = show_msg and (" "):rep(width) or (" "):rep(math.max(0, width - #msg_line)) .. msg_line
+    local bar_text = show_msg and (" "):rep(width)
+      or (" "):rep(math.max(0, width - #msg_line)) .. msg_line
     local done_text = bar_text:sub(1, done)
     local todo_text = bar_text:sub(done + 1)
     local pct_pad = p.percentage < 10 and 2 or p.percentage < 100 and 1 or 0
@@ -105,8 +120,10 @@ local function progress_chunks(p)
     else
       chunks[#chunks + 1] = { " ", "LspProgressTitle" }
     end
-    chunks[#chunks + 1] =
-      { (" "):rep(pct_pad) .. ("(%d%%) "):format(p.percentage), "LspProgressTitle" }
+    chunks[#chunks + 1] = {
+      (" "):rep(pct_pad) .. ("(%d%%) "):format(p.percentage),
+      "LspProgressTitle",
+    }
   else
     chunks[#chunks + 1] = { msg_line .. " ", "LspProgressTitle" }
   end
@@ -175,7 +192,7 @@ local function render(id)
       source = "lsp-progress",
       kind = "progress",
       status = "success",
-      -- percent = 100,
+      percent = nil,
     })
   else
     vim.api.nvim_echo(lines, false, {
@@ -184,7 +201,7 @@ local function render(id)
       source = "lsp-progress",
       kind = "progress",
       status = "running",
-      -- percent = (p.percentage or 0),
+      percent = nil,
     })
   end
 end
@@ -200,31 +217,37 @@ vim.api.nvim_create_autocmd("LspProgress", {
       "a"
     )
     local d = ev.data
-    if type(d) ~= "table" or type(d.params) ~= "table" or type(d.params.value) ~= "table" then
+    if
+      type(d) ~= "table"
+      or type(d.params) ~= "table"
+      or type(d.params.value) ~= "table"
+    then
       return
     end
     local value = d.params.value
     local parent_key = tostring(d.client_id or "?")
-      .. ":" .. ((value.title or "progress"):gsub("^%s+", ""):gsub("%s+$", ""))
-    state[parent_key] = state[parent_key] or {
-      client = (vim.lsp.get_client_by_id(d.client_id) or {}).name
-        or ("lsp-" .. tostring(d.client_id)),
-      title = value.title,
-      children = {},
-    }
+      .. ":"
+      .. ((value.title or "progress"):gsub("^%s+", ""):gsub("%s+$", ""))
+    state[parent_key] = state[parent_key]
+      or {
+        client = (vim.lsp.get_client_by_id(d.client_id) or {}).name
+          or ("lsp-" .. tostring(d.client_id)),
+        title = value.title,
+        children = {},
+      }
 
     local token = tostring(d.params.token or "default")
-    state[parent_key].children[token] = vim.tbl_deep_extend("force", state[parent_key].children[token] or {}, value)
+    state[parent_key].children[token] = vim.tbl_deep_extend(
+      "force",
+      state[parent_key].children[token] or {},
+      value
+    )
     local reported = progress_report_percent(value)
     if reported ~= nil then
-      state[parent_key].percentage = math.max(
-        state[parent_key].percentage or 0,
-        reported
-      )
+      state[parent_key].percentage =
+        math.max(state[parent_key].percentage or 0, reported)
     end
-    --[[ if d.params.value.kind ~= "end" and state[id].percentage then
-			state[id].percentage = math.min(state[id].percentage, 99)
-		end ]]
+
     if value.kind == "end" then
       state[parent_key].children[token] = nil
       state[parent_key].kind = "end"
