@@ -13,8 +13,9 @@ local linked_hls = {
 for g, link in pairs(linked_hls) do
   vim.api.nvim_set_hl(0, g, { link = link, default = true })
 end
-local function spin()
-  local spinner = {
+
+local spinners = {
+  dots = {
     frames = {
       "⠋",
       "⠙",
@@ -28,7 +29,11 @@ local function spin()
       "⠏",
     },
     interval = 80,
-  }
+  },
+}
+local function spin(spin_pattern)
+  spin_pattern = type(spin_pattern) == string and spin_pattern or "dots"
+  local spinner = spinners[spin_pattern] or spinners["dots"]
   local ms = vim.uv.hrtime() / 1000000
   local frame = math.floor(ms / spinner.interval) % #spinner.frames
   return spinner.frames[frame + 1]
@@ -83,7 +88,7 @@ local function progress_report_percent(value)
     or progress_percent_from_text(value.title)
 end
 
-local function progress_chunks(p)
+local function progress_chunks(p, spin_pattern)
   local width, done = 20, math.floor(((p.percentage or 0) / 100) * 20)
   local msg_line = p.message and p.message or ""
   if p.kind == "end" then
@@ -127,7 +132,7 @@ local function progress_chunks(p)
   else
     chunks[#chunks + 1] = { msg_line .. " ", "LspProgressTitle" }
   end
-  chunks[#chunks + 1] = { spin() .. " ", "LspProgressSpinner" }
+  chunks[#chunks + 1] = { spin(spin_pattern) .. " ", "LspProgressSpinner" }
   chunks[#chunks + 1] = { (p.title or "") .. " ", "LspProgressTitle" }
   chunks[#chunks + 1] = { (p.client or "lsp"), "LspProgressClient" }
   return chunks
@@ -145,7 +150,7 @@ local border_stripped = false
 local state, timer = {}, nil
 local last_chunks = {}
 
-local function render(id)
+local function render(id, spin_pattern)
   local p = state[id]
   if not p then
     last_chunks[id] = nil
@@ -172,7 +177,7 @@ local function render(id)
       }
     end
   end
-  local lines = progress_chunks(view)
+  local lines = progress_chunks(view, spin_pattern)
   if vim.deep_equal(lines, last_chunks[id]) then
     return
   end
@@ -275,7 +280,7 @@ vim.api.nvim_create_autocmd("LspProgress", {
           end
           local ids = vim.tbl_keys(state)
           for _, s in ipairs(ids) do
-            render(s)
+            render(s, "dots")
           end
           if vim.tbl_isempty(state) then
             timer:stop()
