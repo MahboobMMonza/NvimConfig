@@ -146,6 +146,20 @@ local function strip_msg_border()
   end
 end
 
+local safe_log = (function()
+  local logger = { enabled = false, path = vim.fn.stdpath("log") .. "/lsp_progress.log" }
+
+  return function(msg)
+    if not logger.enabled then return end
+    pcall(function()
+      msg = type(msg) == "string" and msg or vim.inspect(msg)
+      msg = (msg or ""):gsub("\0", "\n")
+      local lines = vim.split(msg, "\n")
+      vim.fn.writefile(lines, logger.path, "a")
+    end)
+  end
+end)()
+
 local border_stripped = false
 local state, timer = {}, nil
 local last_chunks = {}
@@ -216,23 +230,27 @@ local progress_augroup =
 vim.api.nvim_create_autocmd("LspProgress", {
   group = progress_augroup,
   callback = function(ev)
-    vim.fn.writefile(
-      vim.split(vim.inspect(ev), "\n"),
-      vim.fn.stdpath("log") .. "/lsp_progress.log",
-      "a"
-    )
-    local d = ev.data
-    if
+  local d = ev.data
+  if
       type(d) ~= "table"
-      or type(d.params) ~= "table"
-      or type(d.params.value) ~= "table"
-    then
-      return
-    end
-    local value = d.params.value
-    local parent_key = tostring(d.client_id or "?")
-      .. ":"
-      .. ((value.title or "progress"):gsub("^%s+", ""):gsub("%s+$", ""))
+    or type(d.params) ~= "table"
+    or type(d.params.value) ~= "table"
+  then
+    safe_log("LSP progress invalid event: " .. vim.inspect(ev))
+    return
+  end
+  local value = d.params.value
+  safe_log(string.format(
+    "LSP progress: client=%s, title=%s, token=%s, percentage=%s, kind=%s",
+    tostring(d.client_id or "?"),
+    tostring(value.title or "n/a"),
+    tostring(d.params.token or "default"),
+    tostring(progress_report_percent(value)),
+    tostring(value.kind or "unknown")
+  ))
+  local parent_key = tostring(d.client_id or "?")
+    .. ":"
+    .. ((value.title or "progress"):gsub("^%s+", ""):gsub("%s+$", ""))
     state[parent_key] = state[parent_key]
       or {
         client = (vim.lsp.get_client_by_id(d.client_id) or {}).name
