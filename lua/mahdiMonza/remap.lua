@@ -15,16 +15,11 @@ map("n", "<leader>zz", v.cmd.w)
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
-map(
-  { "n", "v" },
-  "<Space>",
-  "<Nop>",
-  {
-    silent = true,
-    noremap = true,
-    desc = "Set space to be <Nop> for leader key",
-  }
-)
+map({ "n", "v" }, "<Space>", "<Nop>", {
+  silent = true,
+  noremap = true,
+  desc = "Set space to be <Nop> for leader key",
+})
 map(
   { "n", "v" },
   "Y",
@@ -54,15 +49,22 @@ map(
 map("n", "J", "mzJ`z")
 
 -- Remap H and L to go to the effective beginnings and endings of the current line
-map("n", "H", "^", { noremap = true })
-map("n", "L", "$", { noremap = true })
+map("n", "H", "^", { noremap = true, silent = true })
+map("n", "^", "H", { noremap = true, silent = true })
+map("n", "L", "$", { noremap = true, silent = true })
+map("n", "$", "L", { noremap = true, silent = true })
 
 -- Remap to re-center cursor when moving up half blocks
 map("n", "<C-d>", "<C-d>zz")
 map("n", "<C-u>", "<C-u>zz")
 
 -- Remap to continually paste same text after overwrite pastes
-map("x", "<leader>p", '"_dP')
+map(
+  "x",
+  "<leader>p",
+  '"_dP',
+  { desc = "Keep original yanked content after overwriting paste" }
+)
 
 -- Remap to re-center cursor when searching for next occurrences
 map("n", "n", "nzzzv")
@@ -73,8 +75,8 @@ map({ "n", "v" }, "<leader>y", '"+y')
 map({ "n" }, "<leader>Y", '"+Y')
 
 -- Easier way to paste from system keyboard
-map({ "n", "v" }, "<leader>sps", '"+p')
-map({ "n", "v" }, "<leader>Sps", '"+P')
+map({ "n", "v" }, "gp", '"+p', { desc = "Paste below from global clipboard" })
+map({ "n", "v" }, "gP", '"+P', { desc = "Paste above from global clipboard" })
 
 -- Don't leave visual mode after indenting
 map("v", ">", ">gv^")
