@@ -264,6 +264,8 @@ vim.api.nvim_create_autocmd("LspProgress", {
   local parent_key = tostring(d.client_id or "?")
     .. ":"
     .. ((value.title or "progress"):gsub("^%s+", ""):gsub("%s+$", ""))
+    .. ":buf_"
+    .. tostring(ev.buf or "x")
     state[parent_key] = state[parent_key]
       or {
         client = (vim.lsp.get_client_by_id(d.client_id) or {}).name
