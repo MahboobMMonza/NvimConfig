@@ -164,6 +164,19 @@ local border_stripped = false
 local state, timer = {}, nil
 local last_chunks = {}
 
+vim.api.nvim_create_autocmd("VimLeavePre", {
+  callback = function()
+    if type(timer) == "userdata"
+      and timer:is_active()
+      and not timer:is_closing() then
+      timer:stop()
+      timer:close()
+    end
+    timer = nil
+    state = nil
+  end,
+})
+
 local function render(id, spin_pattern)
   local p = state[id]
   if not p then
