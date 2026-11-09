@@ -12,7 +12,6 @@ return {
     cmake_generate_options = {
       "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
     },
-    cmake_build_directory = "build/${variant:buildType}",
     cmake_compile_commands_options = {
       action = "lsp",
       target = vim.loop.cwd,
