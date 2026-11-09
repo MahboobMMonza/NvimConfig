@@ -3,113 +3,12 @@
 -- Ownership split:
 --   - signs: gutter signs for breakpoints
 --   - maps: helper to bind debug keys
---   - ask: lightweight substitute for the retired dap_ui floating prompt
+--   - vim.ui.input: editor-standard prompt helper
 --   - dap.adapters/configurations: language-specific launch setups
 --   - noregister commands: helper tasks like loading .vscode/launch.json
 local v = vim
 
--- Small floating-window text input used by the DAP configurations.
--- It is intentionally self contained so that it works without any UI plugin
--- and does not depend on `vim.ui.input` being overridden by someone else.
-local M = {}
 
-local augroup = vim.api.nvim_create_augroup
-local autocmd = vim.api.nvim_create_autocmd
-
-local function close(win, bufnr)
-  if vim.api.nvim_win_is_valid(win) then
-    vim.api.nvim_win_close(win, true)
-  end
-  if vim.api.nvim_buf_is_valid(bufnr) then
-    vim.api.nvim_buf_delete(bufnr, { force = true })
-  end
-end
-
--- Common prefix of a list of strings.
-local function common_prefix(items)
-  local prefix = items[1] or ""
-  for _, item in ipairs(items) do
-    while #prefix > 0 and item:sub(1, #prefix) ~= prefix do
-      prefix = prefix:sub(1, -2)
-    end
-  end
-  return prefix
-end
-
---- Show a single line floating input.
----@param opts table|nil { prompt = string, default = string, completion = 'file' }
----@param on_done fun(value: string|nil) called with nil when the input is cancelled
-local function input(opts, on_done)
-  opts = opts or {}
-  local prompt = opts.prompt or "Input: "
-  local default = opts.default or ""
-  local completion = opts.completion
-
-  local bufnr = vim.api.nvim_create_buf(false, true)
-  vim.bo[bufnr].bufhidden = "wipe"
-  vim.bo[bufnr].filetype = "dap_input"
-
-  local width = math.min(vim.o.columns - 6, math.max(40, #prompt + 40))
-  local win = vim.api.nvim_open_win(bufnr, true, {
-    relative = "editor",
-    row = math.max(0, math.floor((vim.o.lines - 3) / 2)),
-    col = math.max(0, math.floor((vim.o.columns - width) / 2)),
-    width = width,
-    height = 1,
-    style = "minimal",
-    title = " " .. prompt .. " ",
-    title_pos = "center",
-  })
-
-  vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, { default })
-  vim.api.nvim_win_set_cursor(win, { 1, #default })
-
-  local finished = false
-  local function finish(value)
-    if finished then
-      return
-    end
-    finished = true
-    close(win, bufnr)
-    on_done(value)
-  end
-
-  vim.keymap.set({ "n", "i" }, "<CR>", function()
-    finish(vim.api.nvim_get_current_line())
-  end, { buffer = bufnr, nowait = true, silent = true })
-
-  vim.keymap.set({ "n", "i" }, "<Esc>", function()
-    finish(nil)
-  end, { buffer = bufnr, nowait = true, silent = true })
-
-  vim.keymap.set({ "n", "i" }, "<C-c>", function()
-    finish(nil)
-  end, { buffer = bufnr, nowait = true, silent = true })
-
-  if completion == "file" then
-    local group = augroup("MahdiDapInput", { clear = true })
-    autocmd("TextChanged", {
-      group = group,
-      buffer = bufnr,
-      callback = function()
-        local value = vim.api.nvim_get_current_line()
-        local matches = vim.fn.getcompletion(value, "file")
-        if #matches == 0 then
-          return
-        end
-        local prefix = common_prefix(matches)
-        if #prefix > #value then
-          vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, { prefix })
-          vim.api.nvim_win_set_cursor(win, { 1, #prefix })
-        end
-      end,
-    })
-  end
-
-  vim.cmd("startinsert")
-end
-
-local dap_ui_input = input
 
 
 
@@ -127,11 +26,6 @@ local maps = function(mode, keys, func, desc)
   v.keymap.set(mode, keys, func, { desc = desc, noremap = true })
 end
 
--- `dap.set_breakpoint` expects plain strings, not coroutines, so ask with the
--- floating input and set the breakpoint once the value is known.
-local function ask(prompt, on_done)
-  dap_ui_input({ prompt = prompt }, on_done)
-end
 
 -- Plugin spec registered to Lazy: supplies adapters, launch configs, and key mappings.
 return {
@@ -221,29 +115,29 @@ return {
     maps("n", "<leader>dC", dap.clear_breakpoints, "DAP Clear Breakpoints")
     maps("n", "<leader>dS", dap.step_back, "DAP Step Back")
     maps("n", "<leader>dB", function()
-      ask("Condition: ", function(condition)
+      vim.ui.input({ prompt = "Condition: " }, function(condition)
         if condition and condition ~= "" then
           dap.set_breakpoint(condition)
         end
       end)
     end, "DAP Set Conditional Breakpoint (input condition)")
     maps("n", "<leader>dv", function()
-      ask("Condition: ", function(condition)
+      vim.ui.input({ prompt = "Condition: " }, function(condition)
         if not condition or condition == "" then
           return
         end
-        ask("Hits: ", function(hits)
+        vim.ui.input({ prompt = "Hits: " }, function(hits)
           dap.set_breakpoint(condition, (hits ~= "" and hits or nil))
         end)
       end)
     end, "DAP Set Conditional Breakpoint (input condition)")
     maps("n", "<leader>dV", function()
-      ask("Condition: ", function(condition)
+      vim.ui.input({ prompt = "Condition: " }, function(condition)
         if not condition or condition == "" then
           return
         end
-        ask("Hits: ", function(hits)
-          ask("Log: ", function(log)
+        vim.ui.input({ prompt = "Hits: " }, function(hits)
+          vim.ui.input({ prompt = "Log: " }, function(log)
             dap.set_breakpoint(
               condition,
               (hits ~= "" and hits or nil),
@@ -254,14 +148,14 @@ return {
       end)
     end, "DAP Set Complete Conditional Breakpoint (input conditions)")
     maps("n", "<leader>dl", function()
-      ask("Log: ", function(log)
+      vim.ui.input({ prompt = "Log: " }, function(log)
         if log and log ~= "" then
           dap.set_breakpoint(nil, nil, log)
         end
       end)
     end, "DAP Set Log Breakpoint (input condition)")
     maps("n", "<leader>de", function()
-      ask("Exception Types: ", function(types)
+      vim.ui.input({ prompt = "Exception Types: " }, function(types)
         if types and types ~= "" then
           dap.set_exception_breakpoints(
             vim.split(types, " ", { trimempty = true })
