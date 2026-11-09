@@ -64,8 +64,6 @@ return {
       default = { "lsp", "snippets", "path", "git", "buffer" },
       per_filetype = {
         ["dap-repl"] = { "dap" },
-        ["dapui_watches"] = { "dap" },
-        ["dapui_hover"] = { "dap" },
       },
       providers = {
         lsp = { fallbacks = { "buffer" } },

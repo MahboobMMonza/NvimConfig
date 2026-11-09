@@ -51,6 +51,6 @@ return {
       },
     },
     inactive_winbar = {},
-    extensions = { "nvim-tree", "nvim-dap-ui", "fugitive" },
+    extensions = { "nvim-tree", "fugitive" },
   },
 }

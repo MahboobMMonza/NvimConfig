@@ -1,12 +1,13 @@
-local maps = function(mode, keys, func, desc)
+return {}
+--[[ local maps = function(mode, keys, func, desc)
   if desc then
     desc = "LSP: " .. desc
   end
 
   vim.keymap.set(mode, keys, func, { desc = desc, noremap = true })
-end
+end ]]
 
-return {
+--[[ return {
   "rcarriga/nvim-dap-ui",
   dependencies = {
     "mfussenegger/nvim-dap",
@@ -20,4 +21,4 @@ return {
     maps("n", "<leader>dut", dapui.toggle, "DAP UI Toggle")
     dapui.setup()
   end,
-}
+} ]]
