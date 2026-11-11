@@ -21,14 +21,14 @@ return {
     },
   },
 
-  pyright = {
+  basedpyright = {
     settings = {
-      python = {
-        analysis = {
-          typeCheckingMode = "basic",
-          autoSearchPaths = true,
-          useLibraryCodeForTypes = true,
-          diagnosticMode = "workspace",
+      analysis = {
+        autoSearchPaths = true,
+        diagnosticMode = "openFilesOnly",
+        inlayHints = { callArgumentNames = true },
+        diagnosticSeverityOverrides = {
+          reportUnusedImport = "none",
         },
       },
     },
