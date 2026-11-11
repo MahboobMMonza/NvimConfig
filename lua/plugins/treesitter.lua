@@ -32,7 +32,6 @@ local langs = {
   "html_tags",
   "ecma",
   "latex",
-  "dap_repl",
 }
 
 return {
