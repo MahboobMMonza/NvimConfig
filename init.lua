@@ -7,8 +7,8 @@ local ui = require("vim._core.ui2")
 ui.enable({
   enable = true,
   msg = {
-    target = "cmd",
     targets = {
+      default = "cmd",
       progress = "msg",
     },
   },
