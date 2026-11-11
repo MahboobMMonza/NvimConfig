@@ -5,10 +5,34 @@ local langs = {
   "java",
   "lua",
   "markdown",
+  "markdown_inline",
+  "ghostty",
   "python",
   "rust",
   "typescript",
+  "javascript",
   "vimdoc",
+  "bash",
+  "zsh",
+  "json",
+  "yaml",
+  "toml",
+  "sql",
+  "query",
+  "vim",
+  "tsx",
+  "html",
+  "css",
+  "dockerfile",
+  "make",
+  "cmake",
+  "proto",
+  "regex",
+  "swift",
+  "html_tags",
+  "ecma",
+  "latex",
+  "dap_repl",
 }
 
 return {
@@ -19,21 +43,14 @@ return {
     -- Neovim 0.12+: it provides parsers, queries and the install machinery.
     -- Highlighting, indentation and text objects are enabled explicitly.
     "nvim-treesitter/nvim-treesitter",
-    branch = "main",
     -- The rewrite does not support lazy loading.
     lazy = false,
     build = ":TSUpdate",
     config = function()
       local ts = require("nvim-treesitter")
 
-      ts.setup({
-        install_dir = vim.fn.stdpath("data") .. "/site",
-      })
-
       -- Install the parsers we use. This is a no-op when they are present.
-      pcall(function()
-        ts.install(langs)
-      end)
+      ts.install(langs)
 
       -- Highlighting: provided by Neovim, enabled per filetype.
       vim.api.nvim_create_autocmd("FileType", {
@@ -58,8 +75,12 @@ return {
           if vim.bo[args.buf].filetype == "python" then
             return
           end
-          vim.bo[args.buf].indentexpr =
-            "v:lua.require'nvim-treesitter'.indentexpr()"
+          local lang =
+            vim.treesitter.language.get_lang(vim.bo[args.buf].filetype)
+          if lang and vim.treesitter.query.get(lang, "indents") then
+            vim.bo[args.buf].indentexpr =
+              "v:lua.require'nvim-treesitter'.indentexpr()"
+          end
         end,
       })
     end,

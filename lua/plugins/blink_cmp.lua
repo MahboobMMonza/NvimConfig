@@ -10,7 +10,10 @@ return {
     "rafamadriz/friendly-snippets",
     "mayromr/blink-cmp-dap",
     "Kaiser-Yang/blink-cmp-git",
-    "barrettruth/blink-cmp-ghostty",
+    {
+      "barrettruth/blink-cmp-ghostty",
+      url = "https://forge.barrettruth.com/barrettruth/blink-cmp-ghostty",
+    },
     { "L3MON4D3/LuaSnip", version = "v2.*" },
   },
   opts = {
