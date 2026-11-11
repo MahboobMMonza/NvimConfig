@@ -18,7 +18,7 @@ lazy.setup({
   ui = {
     border = "rounded",
   },
-  install = { colorscheme = { "onedark", "habamax" } },
+  install = { colorscheme = { "onedark" } },
   checker = { enabled = true },
 })
 
