@@ -21,7 +21,7 @@ return {
       "jdtls",
       "rust_analyzer",
       "mpls",
-      "ghostty-ls",
+      -- "ghostty-ls",
     },
     automatic_enable = {
       exclude = { "jdtls", "rust_analyzer" },
