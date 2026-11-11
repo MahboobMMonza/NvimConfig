@@ -8,13 +8,41 @@
 --   - noregister commands: helper tasks like loading .vscode/launch.json
 local v = vim
 
-
-
-
-
 -- Debug signs used in the gutter for breakpoints.
 local function signs(name, sign, thl)
   v.fn.sign_define(name, { text = sign, texthl = thl, linehl = "", numhl = "" })
+end
+
+-- Thin wrapper around `dap-view`, so keybindings degrade gracefully during setup.
+local view_call = function(kind)
+  return function()
+    local ok, dap_view = pcall(require, "dap-view")
+    if not ok then
+      vim.notify(
+        "nvim-dap-view is required for this mapping",
+        vim.log.levels.WARN
+      )
+      return
+    end
+
+    if kind == "toggle" then
+      pcall(dap_view.toggle)
+    elseif kind == "close" then
+      pcall(dap_view.close, true)
+    elseif kind == "hover" then
+      pcall(dap_view.hover)
+    elseif kind == "watch" then
+      pcall(dap_view.add_expr)
+    elseif kind == "next" then
+      pcall(dap_view.navigate, { count = 1, wrap = true })
+    elseif kind == "previous" then
+      pcall(dap_view.navigate, { count = -1, wrap = true })
+    elseif kind == "sessions" then
+      pcall(dap_view.show_view, "sessions")
+    else
+      pcall(dap_view.show_view, kind)
+    end
+  end
 end
 
 -- Utility for exposing key mappings with consistent DAP descriptions.
@@ -26,13 +54,27 @@ local maps = function(mode, keys, func, desc)
   v.keymap.set(mode, keys, func, { desc = desc, noremap = true })
 end
 
-
 -- Plugin spec registered to Lazy: supplies adapters, launch configs, and key mappings.
 return {
   "mfussenegger/nvim-dap",
   config = function()
     local dap = require("dap")
     dap.set_log_level("TRACE")
+    local dap_view_ok, dap_view = pcall(require, "dap-view")
+    if dap_view_ok and type(dap_view) == "table" then
+      dap.listeners.after.event_initialized["dap_view_profiles"] = function()
+        local ok_open = pcall(dap_view.open)
+        if not ok_open and type(dap_view.toggle) == "function" then
+          pcall(dap_view.toggle)
+        end
+      end
+      dap.listeners.before.event_terminated["dap_view_profiles"] = function()
+        pcall(dap_view.close, false)
+      end
+      dap.listeners.before.event_exited["dap_view_profiles"] = function()
+        pcall(dap_view.close, false)
+      end
+    end
 
     -- Launch configurations
     local configs_struct = require("mahdiMonza.configs.dap_configs")
@@ -115,29 +157,80 @@ return {
     maps("n", "<leader>dC", dap.clear_breakpoints, "DAP Clear Breakpoints")
     maps("n", "<leader>dS", dap.step_back, "DAP Step Back")
     maps("n", "<leader>dB", function()
-      vim.ui.input({ prompt = "Condition: " }, function(condition)
+      vim.ui.input({
+        prompt = "Condition: ",
+        completion = "customlist,v:lua.require('dap-view').complete",
+      }, function(condition)
         if condition and condition ~= "" then
           dap.set_breakpoint(condition)
         end
       end)
     end, "DAP Set Conditional Breakpoint (input condition)")
+    maps(
+      "n",
+      "<leader>du",
+      view_call("toggle"),
+      "DAP View: Toggle User Interface"
+    )
+    maps(
+      "n",
+      "<leader>dud",
+      view_call("close"),
+      "DAP View: Close User Interface and Terminal"
+    )
+    maps("n", "<leader>duh", view_call("hover"), "DAP View: Hover Variable")
+    maps(
+      "n",
+      "<leader>dub",
+      view_call("breakpoints"),
+      "DAP View: Show Breakpoints"
+    )
+    maps("n", "<leader>dus", view_call("scopes"), "DAP View: Show Scopes")
+    maps("n", "<leader>duw", view_call("watch"), "DAP View: Add Watch")
+    maps("n", "<leader>dut", view_call("threads"), "DAP View: Show Threads")
+    maps(
+      "n",
+      "<leader>due",
+      view_call("exceptions"),
+      "DAP View: Show Exceptions"
+    )
+    maps("n", "<leader>dur", view_call("repl"), "DAP View: Show REPL")
+    maps("n", "<leader>duo", view_call("console"), "DAP View: Show Console")
+    maps("n", "<leader>dua", view_call("sessions"), "DAP View: Show Sessions")
+    maps("n", "<leader>dun", view_call("next"), "DAP View: Next View")
+    maps("n", "<leader>dup", view_call("previous"), "DAP View: Previous View")
     maps("n", "<leader>dv", function()
-      vim.ui.input({ prompt = "Condition: " }, function(condition)
+      vim.ui.input({
+        prompt = "Condition: ",
+        completion = "customlist,v:lua.require('dap-view').complete",
+      }, function(condition)
         if not condition or condition == "" then
           return
         end
-        vim.ui.input({ prompt = "Hits: " }, function(hits)
+        vim.ui.input({
+          prompt = "Hits: ",
+          completion = "customlist,v:lua.require('dap-view').complete",
+        }, function(hits)
           dap.set_breakpoint(condition, (hits ~= "" and hits or nil))
         end)
       end)
     end, "DAP Set Conditional Breakpoint (input condition)")
     maps("n", "<leader>dV", function()
-      vim.ui.input({ prompt = "Condition: " }, function(condition)
+      vim.ui.input({
+        prompt = "Condition: ",
+        completion = "customlist,v:lua.require('dap-view').complete",
+      }, function(condition)
         if not condition or condition == "" then
           return
         end
-        vim.ui.input({ prompt = "Hits: " }, function(hits)
-          vim.ui.input({ prompt = "Log: " }, function(log)
+        vim.ui.input({
+          prompt = "Hits: ",
+          completion = "customlist,v:lua.require('dap-view').complete",
+        }, function(hits)
+          vim.ui.input({
+            prompt = "Log: ",
+            completion = "customlist,v:lua.require('dap-view').complete",
+          }, function(log)
             dap.set_breakpoint(
               condition,
               (hits ~= "" and hits or nil),
@@ -148,7 +241,10 @@ return {
       end)
     end, "DAP Set Complete Conditional Breakpoint (input conditions)")
     maps("n", "<leader>dl", function()
-      vim.ui.input({ prompt = "Log: " }, function(log)
+      vim.ui.input({
+        prompt = "Log: ",
+        completion = "customlist,v:lua.require('dap-view').complete",
+      }, function(log)
         if log and log ~= "" then
           dap.set_breakpoint(nil, nil, log)
         end

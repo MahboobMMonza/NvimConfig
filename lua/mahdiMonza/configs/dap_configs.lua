@@ -1,20 +1,5 @@
 local config_struct = {}
 
-config_struct.get_exec_path = function(prompt)
-  local input = require("mini.input")
-  local value = input.get({ prompt = prompt, default = vim.fn.getcwd() .. "/" })
-  if value == nil then
-    return vim.fn.getcwd() .. "/"
-  end
-  return value ~= "" and value or (vim.fn.getcwd() .. "/")
-end
-
-config_struct.get_address = function(prompt)
-  local input = require("mini.input")
-  local value = input.get({ prompt = prompt, default = "" })
-  return value ~= "" and value or nil
-end
-
 config_struct.arginp = function(prompt, completion)
   local input = require("mini.input")
   local value = input.get({ prompt = prompt, default = "" })
@@ -64,8 +49,8 @@ config_struct.adapters = {}
 config_struct.configurations = {}
 
 local codelldb_paths = codelldb()
-config_struct.adapters.cppdbg = {
-  id = "cppdbg",
+config_struct.adapters.codelldb = {
+  id = "codelldb",
   type = "executable",
   command = codelldb_paths and codelldb_paths.command or "codelldb",
   args = codelldb_paths and codelldb_paths.liblldb and {
@@ -74,10 +59,10 @@ config_struct.adapters.cppdbg = {
   } or nil,
 }
 
-local function launch_config()
-  return {
+config_struct.configurations.c_cpp = {
+  {
     name = "Launch file",
-    type = "cppdbg",
+    type = "codelldb",
     request = "launch",
     program = function()
       return require("dap.utils").pick_file()
@@ -88,25 +73,13 @@ local function launch_config()
     end,
     stopAtEntry = true,
     setupCommands = {
-      {
-        text = "-enable-pretty-printing",
-        description = "enable pretty printing",
-        ignoreFailures = false,
-      },
     },
-  }
-end
-
-config_struct.configurations.c_cpp = {
-  launch_config(),
+  },
   {
     name = "Launch file (stdin)",
-    type = "cppdbg",
+    type = "codelldb",
     request = "launch",
     program = function()
-      pcall(function()
-        require("telescope").load_extension("ui-select")
-      end)
       return require("dap.utils").pick_file()
     end,
     cwd = "${workspaceFolder}",
@@ -126,40 +99,18 @@ config_struct.configurations.c_cpp = {
     },
     stopAtEntry = true,
     setupCommands = {
-      {
-        text = "-enable-pretty-printing",
-        description = "enable pretty printing",
-        ignoreFailures = false,
-      },
     },
   },
   {
     name = "Attach to gdbserver",
-    type = "cppdbg",
-    request = "launch",
-    MIMode = "gdb",
-    miDebuggerServerAddress = function()
-      return config_struct.get_address("Server Address: ")
-    end,
-    miDebuggerPath = vim.fn.exepath("gdb") ~= "" and vim.fn.exepath("gdb")
-      or "/usr/bin/gdb",
-    cwd = "${workspaceFolder}",
-    args = function()
-      return config_struct.arginp("Args: ")
-    end,
-    program = function()
-      pcall(function()
-        require("telescope").load_extension("ui-select")
-      end)
-      return require("dap.utils").pick_file()
+    type = "codelldb",
+    request = "attach",
+    pid = function()
+      local value = require("mini.input").get({ prompt = " PID: ", default = "" })
+      return value ~= "" and tonumber(value) or nil
     end,
     stopAtEntry = true,
     setupCommands = {
-      {
-        text = "-enable-pretty-printing",
-        description = "enable pretty printing",
-        ignoreFailures = false,
-      },
     },
   },
 }
