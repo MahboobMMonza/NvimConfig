@@ -72,6 +72,7 @@ return {
         pattern = langs,
         callback = function(args)
           if vim.bo[args.buf].filetype == "python" then
+            vim.cmd("runtime! syntax/python.vim")
             return
           end
           local lang =

@@ -23,12 +23,15 @@ return {
 
   basedpyright = {
     settings = {
-      analysis = {
-        autoSearchPaths = true,
-        diagnosticMode = "openFilesOnly",
-        inlayHints = { callArgumentNames = true },
-        diagnosticSeverityOverrides = {
-          reportUnusedImport = "none",
+      basedpyright = {
+        analysis = {
+          autoSearchPaths = true,
+          diagnosticMode = "openFilesOnly",
+          inlayHints = { callArgumentNames = true },
+          diagnosticSeverityOverrides = {
+            reportUnusedImport = "none",
+            reportUnusedCallResult = false,
+          },
         },
       },
     },
