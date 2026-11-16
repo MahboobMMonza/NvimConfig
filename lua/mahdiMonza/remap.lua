@@ -49,10 +49,10 @@ map(
 map("n", "J", "mzJ`z")
 
 -- Remap H and L to go to the effective beginnings and endings of the current line
-map("n", "H", "^", { noremap = true, silent = true })
-map("n", "^", "H", { noremap = true, silent = true })
-map("n", "L", "$", { noremap = true, silent = true })
-map("n", "$", "L", { noremap = true, silent = true })
+map({ "n", "o", "v" }, "H", "^", { noremap = true, silent = true })
+map({ "n", "o", "v" }, "^", "H", { noremap = true, silent = true })
+map({ "n", "o", "v" }, "L", "$", { noremap = true, silent = true })
+map({ "n", "o", "v" }, "$", "L", { noremap = true, silent = true })
 
 -- Remap to re-center cursor when moving up half blocks
 map("n", "<C-d>", "<C-d>zz")
