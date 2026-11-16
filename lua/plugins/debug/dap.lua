@@ -78,7 +78,7 @@ return {
 
     -- Launch configurations
     local configs_struct = require("mahdiMonza.configs.dap_configs")
-    dap.adapters.cppdbg = configs_struct.adapters.cppdbg
+    dap.adapters.codelldb = configs_struct.adapters.codelldb
     dap.configurations.cpp = configs_struct.configurations.c_cpp
     dap.configurations.c = configs_struct.configurations.c_cpp
 
