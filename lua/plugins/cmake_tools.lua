@@ -3,6 +3,7 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "nvim-tree/nvim-web-devicons",
+    { "akinsho/toggleterm.nvim", version = "*", config = true },
   },
   main = "cmake-tools",
   opts = {
@@ -16,5 +17,6 @@ return {
       action = "lsp",
       target = vim.loop.cwd,
     },
+    cmake_use_scratch_buffer = true,
   },
 }
