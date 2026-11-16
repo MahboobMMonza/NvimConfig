@@ -67,6 +67,9 @@ v.o.winblend = 0
 
 v.o.fillchars = "eob: "
 
+-- Smooth scrolling
+v.o.sms = true
+
 -- I have custom keybinds for gr* LSP keybinds
 v.keymap.del({ "n", "x" }, "gra")
 v.keymap.del("n", "grn")
