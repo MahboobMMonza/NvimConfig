@@ -4,3 +4,4 @@ plugin
 graphify-out
 .DS_Store
 .hermes
+*.bak
