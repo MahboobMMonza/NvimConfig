@@ -15,6 +15,7 @@ for g, link in pairs(linked_hls) do
 end
 
 local spinners = {
+  check = "✓",
   dots = {
     frames = {
       "⠋",
@@ -31,153 +32,8 @@ local spinners = {
     interval = 80,
   },
 }
-local function spin(spin_pattern)
-  spin_pattern = type(spin_pattern) == "string" and spin_pattern or "dots"
-  local spinner = spinners[spin_pattern] or spinners["dots"]
-  local ms = vim.uv.hrtime() / 1000000
-  local frame = math.floor(ms / spinner.interval) % #spinner.frames
-  return spinner.frames[frame + 1]
-end
 
-local function trim_progress_text(text)
-  if type(text) ~= "string" then
-    return nil
-  end
-  text = text:gsub("^%s+", ""):gsub("%s+$", "")
-  if text == "" then
-    return nil
-  end
-  return text
-end
-
-local function progress_percent_from_text(text)
-  text = trim_progress_text(text)
-  if not text then
-    return nil
-  end
-  local numerator, denominator = text:match("(%d+)%s*/%s*(%d+)")
-  if not numerator or not denominator then
-    return nil
-  end
-  numerator = tonumber(numerator)
-  denominator = tonumber(denominator)
-  if
-    type(numerator) ~= "number"
-    or type(denominator) ~= "number"
-    or denominator == 0
-  then
-    return nil
-  end
-  return math.floor((numerator / denominator) * 100)
-end
-
-local function progress_report_percent(value)
-  if type(value) ~= "table" then
-    return nil
-  end
-  if type(value.percentage) == "number" then
-    return value.percentage
-  end
-  if type(value.percentage) == "string" then
-    local n = tonumber(value.percentage)
-    if n then
-      return n
-    end
-  end
-  return progress_percent_from_text(value.message)
-    or progress_percent_from_text(value.title)
-end
-
-local function progress_fraction(value)
-  if type(value) ~= "table" then
-    return nil
-  end
-  local numerator, denominator =
-    value.fraction and value.fraction.num or nil,
-    value.fraction and value.fraction.den or nil
-  if not numerator or not denominator then
-    local fraction_text = type(value.message) == "string" and value.message
-      or value.title
-    numerator, denominator = fraction_text:match("(%d+)%s*/%s*(%d+)")
-    numerator, denominator = tonumber(numerator), tonumber(denominator)
-  end
-  if not numerator or not denominator then
-    return nil
-  end
-  return {
-    str = numerator .. "/" .. denominator,
-    num = numerator,
-    den = denominator,
-  }
-end
-
-local function progress_chunks(p, spin_pattern)
-  local width, done = 20, math.floor(((p.percentage or 0) / 100) * 20)
-  local msg_line = p.message and p.message or ""
-  if p.kind == "end" then
-    if p.percentage ~= nil then
-      local fraction_text = p.fraction and type(p.fraction.str) == "string"
-          and p.fraction.str
-          and p.fraction.str ~= ""
-          and p.fraction.str
-        or msg_line
-      local bar_text = #fraction_text <= width
-          and ("%s%s"):format(
-            (" "):rep(math.max(0, width - #fraction_text)),
-            fraction_text
-          )
-        or fraction_text:sub(-width)
-      return {
-        { bar_text, "LspProgressDone" },
-        { " (100%) ", "LspProgressTitle" },
-        { "✓ ", "LspProgressSpinner" },
-        { (p.title or "") .. " ", "LspProgressTitle" },
-        { (p.client or "lsp"), "LspProgressClient" },
-      }
-    else
-      return {
-        { msg_line .. " ", "LspProgressTitle" },
-        { "✓ ", "LspProgressSpinner" },
-        { (p.title or "") .. " ", "LspProgressTitle" },
-        { (p.client or "lsp"), "LspProgressClient" },
-      }
-    end
-  end
-  local chunks = {}
-  if p.percentage ~= nil then
-    local show_msg = #msg_line > 20
-    local bar_text = show_msg and (" "):rep(width)
-      or (" "):rep(math.max(0, width - #msg_line)) .. msg_line
-    local done_text = bar_text:sub(1, done)
-    local todo_text = bar_text:sub(done + 1)
-    local pct_pad = p.percentage < 10 and 2 or p.percentage < 100 and 1 or 0
-    chunks[#chunks + 1] = { done_text, "LspProgressDone" }
-    chunks[#chunks + 1] = { todo_text, "LspProgressTodo" }
-    if show_msg then
-      chunks[#chunks + 1] = { " " .. msg_line .. " ", "LspProgressTitle" }
-    else
-      chunks[#chunks + 1] = { " ", "LspProgressTitle" }
-    end
-    chunks[#chunks + 1] = {
-      (" "):rep(pct_pad) .. ("(%d%%) "):format(p.percentage),
-      "LspProgressTitle",
-    }
-  else
-    chunks[#chunks + 1] = { msg_line .. " ", "LspProgressTitle" }
-  end
-  chunks[#chunks + 1] = { spin(spin_pattern) .. " ", "LspProgressSpinner" }
-  chunks[#chunks + 1] = { (p.title or "") .. " ", "LspProgressTitle" }
-  chunks[#chunks + 1] = { (p.client or "lsp"), "LspProgressClient" }
-  return chunks
-end
-
-local function strip_msg_border()
-  local ui2 = require("vim._core.ui2")
-  local win = ui2.wins and ui2.wins.msg
-  if win and vim.api.nvim_win_is_valid(win) then
-    vim.api.nvim_win_set_config(win, { border = "none" })
-  end
-end
+local sp_pat = "dots"
 
 local safe_log = (function()
   local logger =
@@ -201,16 +57,174 @@ local safe_log = (function()
     end)
   end
 end)()
+local function spin(spin_pattern, kind)
+  if kind == "end" then
+    return spinners.check
+  end
+  spin_pattern = type(spin_pattern) == "string" and spin_pattern or "dots"
+  local spinner = spinners[spin_pattern] or spinners["dots"]
+  local ms = vim.uv.hrtime() / 1000000
+  local frame = math.floor(ms / spinner.interval) % #spinner.frames
+  return spinner.frames[frame + 1]
+end
+
+local function trim_progress_text(text)
+  if type(text) ~= "string" then
+    return nil
+  end
+  text = text:gsub("^%s+", ""):gsub("%s+$", "")
+  if text == "" then
+    return nil
+  end
+  return text
+end
+
+local function progress_num_den(text)
+  text = trim_progress_text(text)
+  if not text then
+    return nil
+  end
+  local num_div, den_div = text:match("(%d+)%s*/%s*(%d+)")
+  local num_of, den_of = text:match("(%d+)%s*of%s*(%d+)")
+  local num, den = num_div and num_div or num_of, den_div and den_div or den_of
+  if not num or not den then
+    return nil, nil
+  end
+  num = tonumber(num)
+  den = tonumber(den)
+  return num, den
+end
+
+local function progress_percent_from_text(text)
+  local num, den = progress_num_den(text)
+  if type(num) ~= "number" or type(den) ~= "number" or den == 0 then
+    return nil
+  end
+  return math.floor((num / den) * 100)
+end
+
+local function progress_report_percent(value)
+  if type(value) ~= "table" then
+    return nil
+  end
+  if type(value.percentage) == "number" then
+    return value.percentage
+  end
+  if type(value.percentage) == "string" then
+    local n = tonumber(value.percentage)
+    if n then
+      return n
+    end
+  end
+  return progress_percent_from_text(value.message)
+end
+
+local function has_fractional(text)
+  return progress_percent_from_text(text) ~= nil
+end
+
+local function progress_fraction(value)
+  if type(value) ~= "table" then
+    return nil
+  end
+  local fraction_text = type(value.message) == "string" and value.message or ""
+  if not has_fractional(fraction_text) then
+    return nil
+  end
+  return fraction_text
+end
+
+local function interpolate_progress_fraction(fraction_text)
+  -- Always guaranteed to be a valid fractional because fraction_text exists
+  return fraction_text:gsub("([^%d]*)(%d+)([^%d]*)(%d+)([^%d]*)", "%1%4%3%4%5")
+end
+
+local function progress_chunks(p, spin_pattern)
+  -- NOTE: any empty string/nil value text for a chunk WILL DISCARD ALL PREVIOUS
+  -- CHUNKS
+  safe_log(vim.inspect(p))
+  local done = math.floor(((p.percentage or 0) / 100) * p.bar_width)
+  local fraction_text = type(p.fraction) == "string" and p.fraction or ""
+  local msg_line = p.message
+      and not has_fractional(p.message)
+      and p.message .. " "
+    or ""
+  local bar_text = ("%s%s"):format(
+    (" "):rep(math.max(0, p.bar_width - #fraction_text)),
+    fraction_text
+  )
+  --[[ if p.kind == "end" then
+    if p.percentage ~= nil then
+      if msg_line == "" then
+        return {
+          { bar_text, "LspProgressDone" },
+          { " (100%) ", "LspProgressTitle" },
+          { "✓ ", "LspProgressSpinner" },
+          { (p.title or "") .. " ", "LspProgressTitle" },
+          { (p.client or "lsp"), "LspProgressClient" },
+        }
+      else
+        return {
+          { bar_text, "LspProgressDone" },
+          { " (100%) ", "LspProgressTitle" },
+          { msg_line, "LspProgressTitle" },
+          { "✓ ", "LspProgressSpinner" },
+          { (p.title or "") .. " ", "LspProgressTitle" },
+          { (p.client or "lsp"), "LspProgressClient" },
+        }
+      end
+    else
+      return {
+        { msg_line .. " ", "LspProgressTitle" },
+        { "✓ ", "LspProgressSpinner" },
+        { (p.title or "") .. " ", "LspProgressTitle" },
+        { (p.client or "lsp"), "LspProgressClient" },
+      }
+    end
+  end ]]
+  local chunks = {}
+  if p.percentage ~= nil then
+    local show_msg = #msg_line > 0
+    local done_text = bar_text:sub(1, done)
+    local todo_text = bar_text:sub(done + 1)
+    local pct_pad = p.percentage < 10 and 3 or p.percentage < 100 and 2 or 1
+    chunks[#chunks + 1] = { done_text, "LspProgressDone" }
+    if #todo_text > 0 then
+      chunks[#chunks + 1] = { todo_text, "LspProgressTodo" }
+    end
+    chunks[#chunks + 1] = {
+      (" "):rep(pct_pad) .. ("(%d%%)"):format(p.percentage),
+      "LspProgressTitle",
+    }
+    if show_msg then
+      chunks[#chunks + 1] = { " " .. msg_line, "LspProgressTitle" }
+    else
+      chunks[#chunks + 1] = { " ", "LspProgressTitle" }
+    end
+  elseif #msg_line > 0 then
+    chunks[#chunks + 1] = { msg_line, "LspProgressTitle" }
+  end
+  chunks[#chunks + 1] = { spin(spin_pattern, p.kind) .. " ", "LspProgressSpinner" }
+  chunks[#chunks + 1] = { (p.title or "") .. " ", "LspProgressTitle" }
+  chunks[#chunks + 1] = { (p.client or "lsp"), "LspProgressClient" }
+  return chunks
+end
+
+local function strip_msg_border()
+  local ui2 = require("vim._core.ui2")
+  local win = ui2.wins and ui2.wins.msg
+  if win and vim.api.nvim_win_is_valid(win) then
+    vim.api.nvim_win_set_config(win, { border = "none" })
+  end
+end
 
 local state, timer = {}, nil
-local last_chunks = {}
 local tracked = {}
 local timer_generation = 0
 
 local function clear_progress(ids)
   for _, id in ipairs(ids or {}) do
     state[id] = nil
-    last_chunks[id] = nil
     pcall(vim.api.nvim_echo, {}, false, {
       id = "lsp-progress." .. id,
     })
@@ -275,11 +289,17 @@ vim.api.nvim_create_autocmd({ "VimLeavePre", "BufWinLeave", "BufDelete" }, {
     clear_all_progress()
     if event_name == "VimLeavePre" or remaining == 0 then
       state = {}
-      last_chunks = {}
       timer = nil
     end
   end,
 })
+
+local function bar_width(prev_width, text)
+  if not prev_width then
+    return math.max(20, #text + 5)
+  end
+  return math.max(prev_width, #text + 5)
+end
 
 local function render(id, spin_pattern)
   if not state then
@@ -287,10 +307,10 @@ local function render(id, spin_pattern)
   end
   local p = state[id]
   if not p then
-    last_chunks[id] = nil
     return
   end
   local view = p
+  -- Parallel processes from same parent source, choose highest percent report
   if type(p.children) == "table" and next(p.children) then
     local selected
     local highest = -1
@@ -308,21 +328,23 @@ local function render(id, spin_pattern)
         client = p.client,
         percentage = selected.percentage or p.percentage,
         message = selected.message,
-        fraction = progress_fraction(selected) or p.fraction,
       }
     end
   end
+  view.fraction = progress_fraction(view.message) or p.fraction
+  view.bar_width = bar_width(view.bar_width, view.fraction)
+  view.message = view.message or nil
+  --[[ if view.kind == "end" then
+    safe_log(string.format("View: %s\np: %s\n", vim.inspect(view), vim.inspect(p)))
+  end ]]
   local lines = progress_chunks(view, spin_pattern)
-  if vim.deep_equal(lines, last_chunks[id]) then
-    return
-  end
-  last_chunks[id] = lines
   pcall(strip_msg_border)
   if #lines == 0 then
     return
   end
 
   if p.kind == "end" then
+    -- vim.notify(string.format("%s", vim.inspect(lines)), vim.log.levels.TRACE)
     vim.api.nvim_echo(lines, false, {
       id = "lsp-progress." .. id,
       title = nil,
@@ -362,17 +384,6 @@ vim.api.nvim_create_autocmd("LspProgress", {
       return
     end
     local value = d.params.value
-    safe_log(
-      string.format(
-        "LSP progress: client=%s, title=%s, message=%s, token=%s, percentage=%s, kind=%s",
-        tostring(d.client_id or "?"),
-        tostring(value.title or "n/a"),
-        tostring(value.message or "n/a"),
-        tostring(d.params.token or "default"),
-        tostring(progress_report_percent(value)),
-        tostring(value.kind or "unknown")
-      )
-    )
     local parent_key = tostring(d.client_id or "?")
       .. ":"
       .. ((value.title or "progress"):gsub("^%s+", ""):gsub("%s+$", ""))
@@ -402,6 +413,19 @@ vim.api.nvim_create_autocmd("LspProgress", {
       state[parent_key].fraction = reported_fraction
     end
 
+    safe_log(
+      string.format(
+        "LSP progress: client=%s, title=%s, message=%s, token=%s, percentage=%s, fraction=%s, kind=%s",
+        tostring(d.client_id or "?"),
+        tostring(value.title or "n/a"),
+        tostring(value.message or "n/a"),
+        tostring(d.params.token or "default"),
+        tostring(progress_report_percent(value)),
+        tostring(state[parent_key].fraction or "n/a"),
+        tostring(value.kind or "unknown")
+      )
+    )
+
     if value.kind == "end" then
       state[parent_key].children[token] = nil
       if vim.tbl_isempty(state[parent_key].children) then
@@ -409,15 +433,12 @@ vim.api.nvim_create_autocmd("LspProgress", {
         if state[parent_key].percentage ~= nil then
           state[parent_key].percentage = 100
         end
-        if state[parent_key].fraction and state[parent_key].fraction.den ~= nil then
-          state[parent_key].fraction.str = string.format(
-            "%d/%d",
-            state[parent_key].fraction.den,
-            state[parent_key].fraction.den
-          )
+        if state[parent_key].fraction then
+          state[parent_key].fraction =
+            interpolate_progress_fraction(state[parent_key].fraction)
         end
-        state[parent_key].expires_at = (vim.uv.hrtime() / 1000000) + 80
-        last_chunks[parent_key] = nil
+        state[parent_key].expires_at = (vim.uv.hrtime() / 1000000)
+          + spinners[sp_pat].interval
       else
         -- At least one token is still reporting under the same parent, so
         -- don't let this finished child make the whole line look completed.
@@ -481,7 +502,7 @@ vim.api.nvim_create_autocmd("LspProgress", {
 
           local active_ids = vim.tbl_keys(state)
           for _, id in ipairs(active_ids) do
-            local ok, err = pcall(render, id, "dots")
+            local ok, err = pcall(render, id, sp_pat)
             if not ok then
               safe_log("LSP progress render failed: " .. tostring(err))
             end
