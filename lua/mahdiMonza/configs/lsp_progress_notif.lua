@@ -142,7 +142,8 @@ end
 local function progress_chunks(p, spin_pattern)
   -- NOTE: any empty string/nil value text for a chunk WILL DISCARD ALL PREVIOUS
   -- CHUNKS
-  safe_log(vim.inspect(p))
+
+  -- safe_log(vim.inspect(p))
   local done = math.floor(((p.percentage or 0) / 100) * p.bar_width)
   local fraction_text = type(p.fraction) == "string" and p.fraction or ""
   local fraction_len = vim.fn.strdisplaywidth(fraction_text)
@@ -154,35 +155,7 @@ local function progress_chunks(p, spin_pattern)
     (" "):rep(math.max(0, p.bar_width - fraction_len)),
     fraction_text
   )
-  --[[ if p.kind == "end" then
-    if p.percentage ~= nil then
-      if msg_line == "" then
-        return {
-          { bar_text, "LspProgressDone" },
-          { " (100%) ", "LspProgressTitle" },
-          { "✓ ", "LspProgressSpinner" },
-          { (p.title or "") .. " ", "LspProgressTitle" },
-          { (p.client or "lsp"), "LspProgressClient" },
-        }
-      else
-        return {
-          { bar_text, "LspProgressDone" },
-          { " (100%) ", "LspProgressTitle" },
-          { msg_line, "LspProgressTitle" },
-          { "✓ ", "LspProgressSpinner" },
-          { (p.title or "") .. " ", "LspProgressTitle" },
-          { (p.client or "lsp"), "LspProgressClient" },
-        }
-      end
-    else
-      return {
-        { msg_line .. " ", "LspProgressTitle" },
-        { "✓ ", "LspProgressSpinner" },
-        { (p.title or "") .. " ", "LspProgressTitle" },
-        { (p.client or "lsp"), "LspProgressClient" },
-      }
-    end
-  end ]]
+
   local chunks = {}
   if p.percentage ~= nil then
     local show_msg = #msg_line > 0
@@ -296,7 +269,6 @@ vim.api.nvim_create_autocmd({ "VimLeavePre", "BufWinLeave", "BufDelete" }, {
   end,
 })
 
-
 local function bar_width(prev_width, text)
   local len = vim.fn.strdisplaywidth(text)
   if not prev_width then
@@ -338,9 +310,7 @@ local function render(id, spin_pattern)
   view.fraction = progress_fraction(view.message) or p.fraction
   view.bar_width = bar_width(view.bar_width, view.fraction)
   view.message = view.message or nil
-  --[[ if view.kind == "end" then
-    safe_log(string.format("View: %s\np: %s\n", vim.inspect(view), vim.inspect(p)))
-  end ]]
+
   local lines = progress_chunks(view, spin_pattern)
   pcall(strip_msg_border)
   if #lines == 0 then
@@ -348,7 +318,6 @@ local function render(id, spin_pattern)
   end
 
   if p.kind == "end" then
-    -- vim.notify(string.format("%s", vim.inspect(lines)), vim.log.levels.TRACE)
     vim.api.nvim_echo(lines, false, {
       id = "lsp-progress." .. id,
       title = nil,
