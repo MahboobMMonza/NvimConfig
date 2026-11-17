@@ -145,12 +145,13 @@ local function progress_chunks(p, spin_pattern)
   safe_log(vim.inspect(p))
   local done = math.floor(((p.percentage or 0) / 100) * p.bar_width)
   local fraction_text = type(p.fraction) == "string" and p.fraction or ""
+  local fraction_len = vim.fn.strdisplaywidth(fraction_text)
   local msg_line = p.message
       and not has_fractional(p.message)
       and p.message .. " "
     or ""
   local bar_text = ("%s%s"):format(
-    (" "):rep(math.max(0, p.bar_width - #fraction_text)),
+    (" "):rep(math.max(0, p.bar_width - fraction_len)),
     fraction_text
   )
   --[[ if p.kind == "end" then
@@ -295,11 +296,13 @@ vim.api.nvim_create_autocmd({ "VimLeavePre", "BufWinLeave", "BufDelete" }, {
   end,
 })
 
+
 local function bar_width(prev_width, text)
+  local len = vim.fn.strdisplaywidth(text)
   if not prev_width then
-    return math.max(20, #text + 5)
+    return math.max(20, len + 5)
   end
-  return math.max(prev_width, #text + 5)
+  return len > prev_width and len + 5 or prev_width
 end
 
 local function render(id, spin_pattern)
