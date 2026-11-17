@@ -159,8 +159,8 @@ local function progress_chunks(p, spin_pattern)
   local chunks = {}
   if p.percentage ~= nil then
     local show_msg = #msg_line > 0
-    local done_text = vim.fn.strcharpart(bar_text, 1, done, true)
-    local todo_text = vim.fn.strcharpart(bar_text, done + 1, p.bar_width - done, true)
+    local done_text = vim.fn.strcharpart(bar_text, 0, done, true)
+    local todo_text = vim.fn.strcharpart(bar_text, done, p.bar_width - done, true)
     local pct_pad = p.percentage < 10 and 3 or p.percentage < 100 and 2 or 1
     chunks[#chunks + 1] = { done_text, "LspProgressDone" }
     if #todo_text > 0 then
