@@ -15,7 +15,7 @@ for g, link in pairs(linked_hls) do
 end
 
 local spinners = {
-  check = "✓",
+  check = "",
   dots = {
     frames = {
       "⠋",
