@@ -204,7 +204,8 @@ local function progress_chunks(p, spin_pattern)
   elseif #msg_line > 0 then
     chunks[#chunks + 1] = { msg_line, "LspProgressTitle" }
   end
-  chunks[#chunks + 1] = { spin(spin_pattern, p.kind) .. " ", "LspProgressSpinner" }
+  chunks[#chunks + 1] =
+    { spin(spin_pattern, p.kind) .. " ", "LspProgressSpinner" }
   chunks[#chunks + 1] = { (p.title or "") .. " ", "LspProgressTitle" }
   chunks[#chunks + 1] = { (p.client or "lsp"), "LspProgressClient" }
   return chunks
