@@ -10,7 +10,7 @@ return {
   },
   keys = {
     {
-      "<leader>s",
+      "gs",
       mode = { "n", "x", "o" },
       function()
         require("flash").jump()
@@ -18,7 +18,7 @@ return {
       desc = "Flash Jump",
     },
     {
-      "<leader>S",
+      "gS",
       mode = { "n", "x", "o" },
       function()
         require("flash").treesitter()
