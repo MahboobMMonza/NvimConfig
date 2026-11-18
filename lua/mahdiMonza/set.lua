@@ -22,7 +22,7 @@ v.o.autoindent = true
 v.o.smartindent = true
 v.o.cindent = true
 
-v.o.laststatus = 3
+v.o.laststatus = 2
 v.o.cmdheight = 1
 v.o.showcmd = true
 v.o.showmode = true
