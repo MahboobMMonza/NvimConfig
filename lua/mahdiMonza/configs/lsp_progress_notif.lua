@@ -1,18 +1,25 @@
-local search_hl = vim.api.nvim_get_hl(0, { name = "Search", link = false })
-local fill_hl = { fg = search_hl.fg, bg = search_hl.bg }
+local colour_augroup =
+  vim.api.nvim_create_augroup("lsp_progress_recolour", { clear = true })
+vim.api.nvim_create_autocmd({ "ColorScheme", "VimEnter" }, {
+  group = colour_augroup,
+  callback = function(_)
+    local search_hl = vim.api.nvim_get_hl(0, { name = "Search", link = false })
+    local fill_hl = { fg = search_hl.fg, bg = search_hl.bg }
 
-vim.api.nvim_set_hl(0, "LspProgressDone", fill_hl)
+    vim.api.nvim_set_hl(0, "LspProgressDone", fill_hl)
 
-local linked_hls = {
-  LspProgressTodo = "Conceal",
-  LspProgressSpinner = "Constant", -- spinner fg
-  LspProgressTitle = "NonText", -- title fg
-  LspProgressClient = "Title", -- client name fg
-}
+    local linked_hls = {
+      LspProgressTodo = "Conceal",
+      LspProgressSpinner = "Constant", -- spinner fg
+      LspProgressTitle = "NonText", -- title fg
+      LspProgressClient = "Title", -- client name fg
+    }
 
-for g, link in pairs(linked_hls) do
-  vim.api.nvim_set_hl(0, g, { link = link, default = true })
-end
+    for g, link in pairs(linked_hls) do
+      vim.api.nvim_set_hl(0, g, { link = link, default = true })
+    end
+  end,
+})
 
 local spinners = {
   check = "",
@@ -160,7 +167,8 @@ local function progress_chunks(p, spin_pattern)
   if p.percentage ~= nil then
     local show_msg = #msg_line > 0
     local done_text = vim.fn.strcharpart(bar_text, 0, done, true)
-    local todo_text = vim.fn.strcharpart(bar_text, done, p.bar_width - done, true)
+    local todo_text =
+      vim.fn.strcharpart(bar_text, done, p.bar_width - done, true)
     local pct_pad = p.percentage < 10 and 3 or p.percentage < 100 and 2 or 1
     chunks[#chunks + 1] = { done_text, "LspProgressDone" }
     if #todo_text > 0 then
