@@ -59,7 +59,6 @@ local safe_log = (function()
         return
       end
       local data = msg and vim.inspect(msg)
-      data = (data or ""):gsub("\0", "\n")
       vim.fn.writefile(data .. "\n", logger.path, "a")
     end)
   end
